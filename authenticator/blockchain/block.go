@@ -15,7 +15,6 @@ type Block struct {
 
 func CreateBlock(data string, prevHash []byte) *Block {
 	block := &Block{[]byte{}, []byte(data), prevHash, 0}
-	// Don't forget to add the 0 at the end for the nonce!
 	pow := NewProofOfWork(block)
 	nonce, hash := pow.Run()
 

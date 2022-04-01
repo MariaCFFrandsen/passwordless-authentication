@@ -8,10 +8,8 @@ import (
 const (
 	dbPath = "./tmp/blocks"
 
-	// This can be used to verify that the blockchain exists
 	dbFile = "./tmp/blocks/MANIFEST"
 
-	// This is arbitrary data for our genesis block
 	genesisData = "First Transaction from Genesis"
 )
 
@@ -29,7 +27,6 @@ func InitBlockChain() *Blockchain {
 	Handle(err)
 
 	err = db.Update(func(txn *badger.Txn) error {
-		// "lh" stand for last hash
 		if _, err := txn.Get([]byte("lh")); err == badger.ErrKeyNotFound {
 			fmt.Println("No existing blockchain found")
 			genesis := Genesis()

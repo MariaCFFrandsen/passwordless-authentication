@@ -13,30 +13,24 @@ type CommandLine struct {
 	blockchain *blockchain.Blockchain
 }
 
-//printUsage will display what options are availble to the user
 func (cli *CommandLine) printUsage() {
 	fmt.Println("Usage: ")
 	fmt.Println(" add -block <BLOCK_DATA> - add a block to the chain")
 	fmt.Println(" print - prints the blocks in the chain")
 }
 
-//validateArgs ensures the cli was given valid input
 func (cli *CommandLine) validateArgs() {
 	if len(os.Args) < 2 {
 		cli.printUsage()
-		//go exit will exit the application by shutting down the goroutine
-		// if you were to use os.exit you might corrupt the data
 		runtime.Goexit()
 	}
 }
 
-//addBlock allows users to add blocks to the chain via the cli
 func (cli *CommandLine) addBlock(data string) {
 	cli.blockchain.AddBlock(data)
 	fmt.Println("Added Block!")
 }
 
-//printChain will display the entire contents of the blockchain
 func (cli *CommandLine) printChain() {
 	iterator := cli.blockchain.Iterator()
 
@@ -48,15 +42,12 @@ func (cli *CommandLine) printChain() {
 		pow := blockchain.NewProofOfWork(block)
 		fmt.Printf("Pow: %s\n", strconv.FormatBool(pow.Validate()))
 		fmt.Println()
-		// This works because the Genesis block has no PrevHash to point to.
 		if len(block.PrevHash) == 0 {
 			break
 		}
 	}
 }
 
-//run will start up the command line
-//run will start up the command line
 func (cli *CommandLine) run() {
 	cli.validateArgs()
 
@@ -77,7 +68,6 @@ func (cli *CommandLine) run() {
 		cli.printUsage()
 		runtime.Goexit()
 	}
-	// Parsed() will return true if the object it was used on has been called
 	if addBlockCmd.Parsed() {
 		if *addBlockData == "" {
 			addBlockCmd.Usage()
@@ -101,5 +91,6 @@ func main() {
 	cli.run()
 
 }
+
 // go run main.go add -block "YOUR BLOCK DATA HERE"
 // go run main.go print

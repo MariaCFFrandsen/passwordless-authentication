@@ -15,7 +15,7 @@ func TestName(t *testing.T) {
 	t.Run("Encryption", func(t *testing.T) {
 		encrypt, err := Encrypt(cipher, keyPair.PublicKey)
 		assert.NoErrorf(t, err, "error occurred")
-		msg := Decrypt(encrypt, *keyPair)
+		msg := Decrypt(encrypt, keyPair.PrivateKey)
 		assert.Equal(t, cipher, msg)
 	})
 

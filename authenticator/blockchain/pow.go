@@ -29,8 +29,8 @@ func (pow *ProofOfWork) InitNonce(nonce int) []byte {
 		[][]byte{
 			pow.Block.PrevHash,
 			pow.Block.Data,
-			ToHex(int64(nonce)),
-			ToHex(int64(Difficulty)),
+			toHex(int64(nonce)),
+			toHex(int64(Difficulty)),
 		},
 		[]byte{},
 	)

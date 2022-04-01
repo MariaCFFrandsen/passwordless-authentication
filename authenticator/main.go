@@ -41,6 +41,7 @@ func (cli *CommandLine) printChain() {
 		fmt.Printf("hash: %x\n", block.Hash)
 		pow := blockchain.NewProofOfWork(block)
 		fmt.Printf("Pow: %s\n", strconv.FormatBool(pow.Validate()))
+		fmt.Printf("Nonce: %d\n", block.Nonce)
 		fmt.Println()
 		if len(block.PrevHash) == 0 {
 			break
@@ -89,7 +90,6 @@ func main() {
 	cli := CommandLine{chain}
 
 	cli.run()
-
 }
 
 // go run main.go add -block "YOUR BLOCK DATA HERE"

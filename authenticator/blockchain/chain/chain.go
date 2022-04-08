@@ -4,9 +4,6 @@ import (
 	".authenticator/blockchain/block"
 	".authenticator/blockchain/db_access"
 	".authenticator/encryption"
-	".authenticator/utils"
-	"fmt"
-	"github.com/dgraph-io/badger"
 )
 
 const (
@@ -15,86 +12,36 @@ const (
 	dbFile = "./tmp/blocks/MANIFEST" //rm
 )
 
-type Service interface {
-	//InsertGenesis() []byte
-	//Insert(b *block.Block) error
-	//LastHash() error
-	//NextHash(currentHash []byte) *block.Block
+type dbService interface {
+	Insert(newBlock *block.Block) []byte
+	LastHash() []byte
+	GetBlockByHash(currentHash []byte) *block.Block
+	CreateOrFindGenesis(genesis *block.Block) []byte
 	Close()
 }
 
 type Blockchain struct {
 	LastHash  []byte
-	Database  *badger.DB
-	dbService *db_access.Access
+	dbService dbService
 }
 
 func InitBlockChain(dbFilePath ...string) *Blockchain { //return err if more than 1 arg?
-	var lastHash []byte
-	var connect *db_access.Access
-	var db *badger.DB
+	var db *db_access.Access
 	if len(dbFilePath) > 0 { //switch
-		connect, db = db_access.Connect(dbFilePath[0])
+		db = db_access.Connect(dbFilePath[0])
 	} else {
-		connect, db = db_access.Connect(dbPath)
+		db = db_access.Connect(dbPath)
 	}
-
-	err := db.Update(func(txn *badger.Txn) error {
-		if _, err := txn.Get([]byte("lh")); err == badger.ErrKeyNotFound {
-			fmt.Println("No existing blockchain found")
-			genBlock := genesis()
-			fmt.Println("Genesis proved")
-			err = txn.Set(genBlock.Hash, genBlock.Serialize())
-			utils.Handle(err)
-			err = txn.Set([]byte("lh"), genBlock.Hash)
-
-			lastHash = genBlock.Hash
-
-			return err
-		} else {
-			item, err := txn.Get([]byte("lh"))
-			utils.Handle(err)
-			err = item.Value(func(val []byte) error {
-				lastHash = val
-				return nil
-			})
-			utils.Handle(err)
-			return err
-		}
-	})
-	utils.Handle(err)
-
-	blockchain := Blockchain{lastHash, db, connect}
+	lastHash := db.CreateOrFindGenesis(genesis())
+	blockchain := Blockchain{lastHash, db}
 	return &blockchain
 }
 
 func (chain *Blockchain) AddBlock(data string, pk *encryption.PublicKey) (*block.Block, error) {
-	var lastHash []byte
-
-	err := chain.Database.View(func(txn *badger.Txn) error {
-		item, err := txn.Get([]byte("lh"))
-		utils.Handle(err)
-		err = item.Value(func(val []byte) error {
-			lastHash = val
-			return nil
-		})
-		utils.Handle(err)
-		return err
-	})
-	utils.Handle(err)
-
+	lastHash := chain.dbService.LastHash()
 	newBlock := block.CreateBlock(data, lastHash, pk)
-
-	err = chain.Database.Update(func(transaction *badger.Txn) error { //rename transaction
-		err := transaction.Set(newBlock.Hash, newBlock.Serialize())
-		utils.Handle(err)
-		err = transaction.Set([]byte("lh"), newBlock.Hash)
-
-		chain.LastHash = newBlock.Hash
-		return err
-	})
-	utils.Handle(err)
-	return newBlock, err
+	chain.LastHash = chain.dbService.Insert(newBlock)
+	return newBlock, nil
 }
 
 func genesis() *block.Block { //should return err

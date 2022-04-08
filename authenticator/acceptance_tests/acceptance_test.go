@@ -23,7 +23,7 @@ func TestPrint(t *testing.T) {
 			rn      = rand.Intn(100)
 		)
 
-		defer bc.Database.Close()
+		defer bc.Iterator().Database.Close()
 
 		b, err := bc.AddBlock(fmt.Sprintf("test %d", rn), keyPair.PublicKey)
 		assert.NoErrorf(t, err, "error occurred creating b")
@@ -41,7 +41,7 @@ func TestPrint(t *testing.T) {
 			bc       = chain.InitBlockChain(dbPath)
 			iterator = bc.Iterator()
 		)
-		defer bc.Database.Close()
+		defer bc.Iterator().Database.Close()
 
 		for {
 			b := iterator.Next()

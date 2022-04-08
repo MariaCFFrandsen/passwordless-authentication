@@ -13,7 +13,7 @@ type KeyPair struct {
 	PublicKey  *PublicKey
 }
 
-type PublicKey struct { //not sure if we need these
+type PublicKey struct {
 	PublicKey *rsa.PublicKey
 }
 

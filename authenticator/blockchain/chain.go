@@ -10,8 +10,6 @@ const (
 	dbPath = "./tmp/blocks"
 
 	dbFile = "./tmp/blocks/MANIFEST"
-
-	genesisData = "First Transaction from Genesis"
 )
 
 type APIService interface { //this is the API the server should have
@@ -29,7 +27,7 @@ func InitBlockChain() *Blockchain {
 	var lastHash []byte
 
 	opts := badger.DefaultOptions(dbPath)
-
+	opts.Truncate = true
 	db, err := badger.Open(opts)
 	Handle(err)
 

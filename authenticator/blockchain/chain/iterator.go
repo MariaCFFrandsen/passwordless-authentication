@@ -1,6 +1,7 @@
-package blockchain
+package chain
 
 import (
+	".authenticator/blockchain/block"
 	".authenticator/utils"
 	"github.com/dgraph-io/badger"
 )
@@ -14,15 +15,15 @@ func (chain *Blockchain) Iterator() *Iterator {
 	return &Iterator{chain.LastHash, chain.Database}
 }
 
-func (iterator *Iterator) Next() *Block {
-	var block *Block
+func (iterator *Iterator) Next() *block.Block {
+	var b *block.Block
 
 	err := iterator.Database.View(func(txn *badger.Txn) error {
 		item, err := txn.Get(iterator.CurrentHash)
 		utils.Handle(err)
 
 		err = item.Value(func(val []byte) error {
-			block = Deserialize(val)
+			b = block.Deserialize(val)
 			return nil
 		})
 		utils.Handle(err)
@@ -30,8 +31,8 @@ func (iterator *Iterator) Next() *Block {
 	})
 	utils.Handle(err)
 
-	iterator.CurrentHash = block.PrevHash
+	iterator.CurrentHash = b.PrevHash
 
-	return block
+	return b
 }
 

@@ -1,9 +1,11 @@
 package api
 
-import ".authenticator/blockchain"
+import (
+	".authenticator/blockchain/block"
+)
 
 type Service interface { //this is the API the server should have
-	AddBlock() (*blockchain.Block, error)
+	AddBlock() (*block.Block, error)
 	ValidateBlock() error
-	SearchChainByHash(*blockchain.Block, error)
+	SearchChainByHash(*block.Block, error)
 }

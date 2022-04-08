@@ -1,7 +1,8 @@
 package acceptance_tests
 
 import (
-	".authenticator/blockchain"
+	".authenticator/blockchain/block"
+	".authenticator/blockchain/chain"
 	".authenticator/encryption"
 	"fmt"
 	"github.com/stretchr/testify/assert"
@@ -17,41 +18,41 @@ const (
 func TestPrint(t *testing.T) {
 	t.Run("Print added block", func(t *testing.T) {
 		var (
-			bc      = blockchain.InitBlockChain(dbPath)
+			bc      = chain.InitBlockChain(dbPath)
 			keyPair = encryption.GenerateKeyPair()
 			rn      = rand.Intn(100)
 		)
 
 		defer bc.Database.Close()
 
-		block, err := bc.AddBlock(fmt.Sprintf("test %d", rn), keyPair.PublicKey)
-		assert.NoErrorf(t, err, "error occurred creating block")
+		b, err := bc.AddBlock(fmt.Sprintf("test %d", rn), keyPair.PublicKey)
+		assert.NoErrorf(t, err, "error occurred creating b")
 		fmt.Println("Added Block!")
-		fmt.Printf("Previous hash: %x\n", block.PrevHash)
-		fmt.Printf("data: %s\n", block.Data)
-		fmt.Printf("hash: %x\n", block.Hash)
-		pow := blockchain.NewProofOfWork(block)
+		fmt.Printf("Previous hash: %x\n", b.PrevHash)
+		fmt.Printf("data: %s\n", b.Data)
+		fmt.Printf("hash: %x\n", b.Hash)
+		pow := block.NewProofOfWork(b)
 		fmt.Printf("Pow: %s\n", strconv.FormatBool(pow.Validate()))
-		fmt.Printf("Nonce: %d\n", block.Nonce)
+		fmt.Printf("Nonce: %d\n", b.Nonce)
 	})
 
 	t.Run("Print blockchain", func(t *testing.T) {
 		var (
-			bc       = blockchain.InitBlockChain(dbPath)
+			bc       = chain.InitBlockChain(dbPath)
 			iterator = bc.Iterator()
 		)
 		defer bc.Database.Close()
 
 		for {
-			block := iterator.Next()
-			fmt.Printf("Previous hash: %x\n", block.PrevHash)
-			fmt.Printf("data: %s\n", block.Data)
-			fmt.Printf("hash: %x\n", block.Hash)
-			pow := blockchain.NewProofOfWork(block)
+			b := iterator.Next()
+			fmt.Printf("Previous hash: %x\n", b.PrevHash)
+			fmt.Printf("data: %s\n", b.Data)
+			fmt.Printf("hash: %x\n", b.Hash)
+			pow := block.NewProofOfWork(b)
 			fmt.Printf("Pow: %s\n", strconv.FormatBool(pow.Validate()))
-			fmt.Printf("Nonce: %d\n", block.Nonce)
+			fmt.Printf("Nonce: %d\n", b.Nonce)
 			fmt.Println()
-			if len(block.PrevHash) == 0 {
+			if len(b.PrevHash) == 0 {
 				break
 			}
 		}

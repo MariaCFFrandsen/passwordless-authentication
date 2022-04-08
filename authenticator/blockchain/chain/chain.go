@@ -1,6 +1,7 @@
-package blockchain
+package chain
 
 import (
+	".authenticator/blockchain/block"
 	".authenticator/encryption"
 	".authenticator/utils"
 	"fmt"
@@ -60,7 +61,7 @@ func InitBlockChain(dbFilePath ...string) *Blockchain { //return err if more tha
 	return &blockchain
 }
 
-func (chain *Blockchain) AddBlock(data string, pk *encryption.PublicKey) (*Block, error){
+func (chain *Blockchain) AddBlock(data string, pk *encryption.PublicKey) (*block.Block, error){
 	var lastHash []byte
 
 	err := chain.Database.View(func(txn *badger.Txn) error {
@@ -75,7 +76,7 @@ func (chain *Blockchain) AddBlock(data string, pk *encryption.PublicKey) (*Block
 	})
 	utils.Handle(err)
 
-	newBlock := CreateBlock(data, lastHash, pk)
+	newBlock := block.CreateBlock(data, lastHash, pk)
 
 	err = chain.Database.Update(func(transaction *badger.Txn) error { //rename transaction
 		err := transaction.Set(newBlock.Hash, newBlock.Serialize())
@@ -87,4 +88,15 @@ func (chain *Blockchain) AddBlock(data string, pk *encryption.PublicKey) (*Block
 	})
 	utils.Handle(err)
 	return newBlock, err
+}
+
+func genesis() *block.Block { //should return err
+	pair := encryption.GenerateKeyPair()
+	err := encryption.CreateCertificate(pair)
+	if err != nil {
+		return nil
+	}
+	return block.CreateBlock("Genesis", []byte{}, &encryption.PublicKey{
+		PublicKey: pair.PublicKey.PublicKey,
+	})
 }

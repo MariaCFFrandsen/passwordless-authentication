@@ -1,7 +1,8 @@
 package integration_tests
 
 import (
-	".authenticator/blockchain"
+	".authenticator/blockchain/block"
+	".authenticator/blockchain/chain"
 	".authenticator/encryption"
 	"fmt"
 	"github.com/stretchr/testify/assert"
@@ -15,15 +16,15 @@ const (
 
 func TestBlock(t *testing.T) {
 	var (
-		bc      = blockchain.InitBlockChain(dbFile)
+		bc      = chain.InitBlockChain(dbFile)
 		keyPair = encryption.GenerateKeyPair()
 		rn      = rand.Intn(100)
-		block = blockchain.CreateBlock(fmt.Sprintf("test block %d", rn),
+		block = block.CreateBlock(fmt.Sprintf("test block %d", rn),
 			bc.LastHash,
 			keyPair.PublicKey)
 	)
 	t.Run("Create Block", func(t *testing.T) {
-		createdBlock := blockchain.CreateBlock(fmt.Sprintf("test block %d", rn),
+		createdBlock := block.CreateBlock(fmt.Sprintf("test block %d", rn),
 			bc.LastHash,
 			keyPair.PublicKey)
 		assert.NotNil(t, createdBlock)
@@ -36,13 +37,13 @@ func TestBlock(t *testing.T) {
 	})
 
 	t.Run("Run PoW", func(t *testing.T) {
-		proofOfWork := blockchain.NewProofOfWork(block)
+		proofOfWork := block.NewProofOfWork(block)
 		proofOfWork.Run()
 	})
 
 	t.Run("Verify hash", func(t *testing.T) {
 		var (
-			proofOfWork = blockchain.NewProofOfWork(block)
+			proofOfWork = block.NewProofOfWork(block)
 		)
 		proofOfWork.Validate()
 

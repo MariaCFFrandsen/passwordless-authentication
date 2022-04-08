@@ -1,6 +1,7 @@
-package blockchain
+package integration_tests
 
 import (
+	blockchain2 ".authenticator/blockchain"
 	"bytes"
 	"fmt"
 	"github.com/stretchr/testify/assert"
@@ -11,13 +12,13 @@ func TestBlockchain(t *testing.T) {
 	//TODO: make some test with database
 
 	t.Run("Init Blockchain", func(t *testing.T) {
-		blockchain := InitBlockChain()
+		blockchain := blockchain2.InitBlockChain()
 		assert.NotNil(t, blockchain)
 	})
 
 	t.Run("Correct last hash", func(t *testing.T) {
 		var (
-			blockchain = InitBlockChain()
+			blockchain = blockchain2.InitBlockChain()
 		)
 		h := blockchain.LastHash
 		fmt.Printf(string(h))
@@ -25,7 +26,7 @@ func TestBlockchain(t *testing.T) {
 
 	t.Run("Add Block", func(t *testing.T) {
 		var (
-			blockchain = InitBlockChain()
+			blockchain = blockchain2.InitBlockChain()
 		)
 		blockchain.AddBlock("test block", nil)
 	})
@@ -36,7 +37,7 @@ func TestBlockchain(t *testing.T) {
 
 	t.Run("Find Block by Hash", func(t *testing.T) {
 		var (
-			blockchain = InitBlockChain()
+			blockchain = blockchain2.InitBlockChain()
 		)
 		iterator := blockchain.Iterator()
 		findHash := []byte{}

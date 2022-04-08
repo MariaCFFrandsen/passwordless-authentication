@@ -4,7 +4,6 @@ import (
 	".authenticator/encryption"
 	"bytes"
 	"encoding/gob"
-	"log"
 )
 
 type Block struct {
@@ -24,7 +23,7 @@ func CreateBlock(data string, prevHash []byte, pk *encryption.PublicKey) *Block 
 	block.Nonce = nonce
 
 	return block
-}
+} //private
 
 func Genesis() *Block { //should return err
 	pair := encryption.GenerateKeyPair()
@@ -35,7 +34,7 @@ func Genesis() *Block { //should return err
 	return CreateBlock("Genesis", []byte{}, &encryption.PublicKey{
 		PublicKey: pair.PublicKey.PublicKey,
 	})
-}
+} //private
 
 func (b *Block) Serialize() []byte {
 	var res bytes.Buffer
@@ -58,10 +57,4 @@ func Deserialize(data []byte) *Block {
 	Handle(err)
 
 	return &block
-}
-
-func Handle(err error) {
-	if err != nil {
-		log.Panic(err)
-	}
 }

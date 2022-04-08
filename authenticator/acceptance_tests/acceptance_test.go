@@ -1,4 +1,4 @@
-package main
+package acceptance_tests
 
 import (
 	".authenticator/blockchain"
@@ -10,10 +10,14 @@ import (
 	"testing"
 )
 
+const (
+	dbPath = "..\\tmp\\blocks"
+)
+
 func TestPrint(t *testing.T) {
 	t.Run("Print added block", func(t *testing.T) {
 		var (
-			bc      = blockchain.InitBlockChain()
+			bc      = blockchain.InitBlockChain(dbPath)
 			keyPair = encryption.GenerateKeyPair()
 			rn      = rand.Intn(100)
 		)
@@ -33,7 +37,7 @@ func TestPrint(t *testing.T) {
 
 	t.Run("Print blockchain", func(t *testing.T) {
 		var (
-			bc       = blockchain.InitBlockChain()
+			bc       = blockchain.InitBlockChain(dbPath)
 			iterator = bc.Iterator()
 		)
 		defer bc.Database.Close()

@@ -7,9 +7,9 @@ import (
 )
 
 const (
-	dbPath = "./tmp/blocks"
+	dbPath = "./tmp/blocks" //TODO: this should be an option
 
-	dbFile = "./tmp/blocks/MANIFEST"
+	dbFile = "./tmp/blocks/MANIFEST" //rm
 )
 
 type APIService interface { //this is the API the server should have
@@ -23,10 +23,15 @@ type Blockchain struct {
 	Database *badger.DB
 }
 
-func InitBlockChain() *Blockchain {
+func InitBlockChain(dbFilePath ...string) *Blockchain { //return err if more than 1 arg?
 	var lastHash []byte
+	var opts badger.Options
+	if len(dbFilePath) > 0 {
+		opts = badger.DefaultOptions(dbFilePath[0])
+	} else {
+		opts = badger.DefaultOptions(dbPath)
+	}
 
-	opts := badger.DefaultOptions(dbPath)
 	opts.Truncate = true
 	db, err := badger.Open(opts)
 	Handle(err)
@@ -60,7 +65,7 @@ func InitBlockChain() *Blockchain {
 	return &blockchain
 }
 
-func (chain *Blockchain) AddBlock(data string, pk *encryption.PublicKey) (*Block, error){ //this is return (*Block?, err)
+func (chain *Blockchain) AddBlock(data string, pk *encryption.PublicKey) (*Block, error){
 	var lastHash []byte
 
 	err := chain.Database.View(func(txn *badger.Txn) error {
@@ -75,9 +80,9 @@ func (chain *Blockchain) AddBlock(data string, pk *encryption.PublicKey) (*Block
 	})
 	Handle(err)
 
-	newBlock := CreateBlock(data, lastHash, pk) //TODO addblock should take public key
+	newBlock := CreateBlock(data, lastHash, pk)
 
-	err = chain.Database.Update(func(transaction *badger.Txn) error {
+	err = chain.Database.Update(func(transaction *badger.Txn) error { //rename transaction
 		err := transaction.Set(newBlock.Hash, newBlock.Serialize())
 		Handle(err)
 		err = transaction.Set([]byte("lh"), newBlock.Hash)
@@ -87,34 +92,4 @@ func (chain *Blockchain) AddBlock(data string, pk *encryption.PublicKey) (*Block
 	})
 	Handle(err)
 	return newBlock, err
-}
-
-type Iterator struct {
-	CurrentHash []byte
-	Database    *badger.DB
-}
-
-func (chain *Blockchain) Iterator() *Iterator {
-	return &Iterator{chain.LastHash, chain.Database}
-}
-
-func (iterator *Iterator) Next() *Block {
-	var block *Block
-
-	err := iterator.Database.View(func(txn *badger.Txn) error {
-		item, err := txn.Get(iterator.CurrentHash)
-		Handle(err)
-
-		err = item.Value(func(val []byte) error {
-			block = Deserialize(val)
-			return nil
-		})
-		Handle(err)
-		return err
-	})
-	Handle(err)
-
-	iterator.CurrentHash = block.PrevHash
-
-	return block
 }

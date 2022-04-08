@@ -1,4 +1,4 @@
-package dbaccess
+package database
 
 import (
 	".authenticator/blockchain/block"
@@ -11,7 +11,7 @@ type Access struct {
 	Db *badger.DB
 }
 
-func Connect(dbPath string) *Access { //receiver?
+func InitDb(dbPath string) *Access { //receiver?
 	var opts badger.Options
 	opts = badger.DefaultOptions(dbPath)
 	opts.Truncate = true

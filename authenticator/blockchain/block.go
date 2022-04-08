@@ -2,6 +2,7 @@ package blockchain
 
 import (
 	".authenticator/encryption"
+	".authenticator/utils"
 	"bytes"
 	"encoding/gob"
 )
@@ -42,7 +43,7 @@ func (b *Block) Serialize() []byte {
 
 	err := encoder.Encode(b)
 
-	Handle(err)
+	utils.Handle(err)
 
 	return res.Bytes()
 }
@@ -54,7 +55,7 @@ func Deserialize(data []byte) *Block {
 
 	err := decoder.Decode(&block)
 
-	Handle(err)
+	utils.Handle(err)
 
 	return &block
 }

@@ -2,6 +2,7 @@ package blockchain
 
 import (
 	".authenticator/encryption"
+	".authenticator/utils"
 	"fmt"
 	"github.com/dgraph-io/badger"
 )
@@ -28,7 +29,7 @@ func InitBlockChain(dbFilePath ...string) *Blockchain { //return err if more tha
 
 	opts.Truncate = true
 	db, err := badger.Open(opts)
-	Handle(err)
+	utils.Handle(err)
 
 	err = db.Update(func(txn *badger.Txn) error {
 		if _, err := txn.Get([]byte("lh")); err == badger.ErrKeyNotFound {
@@ -36,7 +37,7 @@ func InitBlockChain(dbFilePath ...string) *Blockchain { //return err if more tha
 			genBlock := genesis()
 			fmt.Println("Genesis proved")
 			err = txn.Set(genBlock.Hash, genBlock.Serialize())
-			Handle(err)
+			utils.Handle(err)
 			err = txn.Set([]byte("lh"), genBlock.Hash)
 
 			lastHash = genBlock.Hash
@@ -44,16 +45,16 @@ func InitBlockChain(dbFilePath ...string) *Blockchain { //return err if more tha
 			return err
 		} else {
 			item, err := txn.Get([]byte("lh"))
-			Handle(err)
+			utils.Handle(err)
 			err = item.Value(func(val []byte) error {
 				lastHash = val
 				return nil
 			})
-			Handle(err)
+			utils.Handle(err)
 			return err
 		}
 	})
-	Handle(err)
+	utils.Handle(err)
 
 	blockchain := Blockchain{lastHash, db}
 	return &blockchain
@@ -64,26 +65,26 @@ func (chain *Blockchain) AddBlock(data string, pk *encryption.PublicKey) (*Block
 
 	err := chain.Database.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte("lh"))
-		Handle(err)
+		utils.Handle(err)
 		err = item.Value(func(val []byte) error {
 			lastHash = val
 			return nil
 		})
-		Handle(err)
+		utils.Handle(err)
 		return err
 	})
-	Handle(err)
+	utils.Handle(err)
 
 	newBlock := CreateBlock(data, lastHash, pk)
 
 	err = chain.Database.Update(func(transaction *badger.Txn) error { //rename transaction
 		err := transaction.Set(newBlock.Hash, newBlock.Serialize())
-		Handle(err)
+		utils.Handle(err)
 		err = transaction.Set([]byte("lh"), newBlock.Hash)
 
 		chain.LastHash = newBlock.Hash
 		return err
 	})
-	Handle(err)
+	utils.Handle(err)
 	return newBlock, err
 }

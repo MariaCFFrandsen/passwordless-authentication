@@ -1,6 +1,7 @@
 package blockchain
 
 import (
+	".authenticator/utils"
 	"bytes"
 	"crypto/sha256"
 	"fmt"
@@ -27,8 +28,8 @@ func (pow *ProofOfWork) FindNonce(nonce int) []byte {
 		[][]byte{
 			pow.Block.PrevHash,
 			pow.Block.Data,
-			toHex(int64(nonce)),
-			toHex(int64(Difficulty)),
+			utils.ToHex(int64(nonce)),
+			utils.ToHex(int64(Difficulty)),
 		},
 		[]byte{},
 	)

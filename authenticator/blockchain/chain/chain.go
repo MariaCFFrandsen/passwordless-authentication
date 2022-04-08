@@ -2,7 +2,7 @@ package chain
 
 import (
 	".authenticator/blockchain/block"
-	".authenticator/blockchain/db_access"
+	".authenticator/blockchain/dbaccess"
 	".authenticator/encryption"
 )
 
@@ -26,11 +26,11 @@ type Blockchain struct {
 }
 
 func InitBlockChain(dbFilePath ...string) *Blockchain { //return err if more than 1 arg?
-	var db *db_access.Access
+	var db *dbaccess.Access
 	if len(dbFilePath) > 0 { //switch
-		db = db_access.Connect(dbFilePath[0])
+		db = dbaccess.Connect(dbFilePath[0])
 	} else {
-		db = db_access.Connect(dbPath)
+		db = dbaccess.Connect(dbPath)
 	}
 	lastHash := db.CreateOrFindGenesis(genesis())
 	blockchain := Blockchain{lastHash, db}

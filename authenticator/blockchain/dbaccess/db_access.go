@@ -1,4 +1,4 @@
-package db_access
+package dbaccess
 
 import (
 	".authenticator/blockchain/block"

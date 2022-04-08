@@ -13,6 +13,11 @@ const (
 	genesisData = "First Transaction from Genesis"
 )
 
+type APIService interface {
+	AddBlock() error
+	ValidateBlockInChain() error
+}
+
 type Blockchain struct {
 	LastHash []byte
 	Database *badger.DB
@@ -55,7 +60,7 @@ func InitBlockChain() *Blockchain {
 	return &blockchain
 }
 
-func (chain *Blockchain) AddBlock(data string) {
+func (chain *Blockchain) AddBlock(data string) { //this is return (*Block?, err)
 	var lastHash []byte
 
 	err := chain.Database.View(func(txn *badger.Txn) error {

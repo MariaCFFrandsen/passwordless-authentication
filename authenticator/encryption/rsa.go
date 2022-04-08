@@ -6,11 +6,22 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
+	"math/big"
 )
 
 type KeyPair struct {
 	PrivateKey *rsa.PrivateKey
+	PublicKey  *rsa.PublicKey
+}
+
+type PublicKey struct {
 	PublicKey *rsa.PublicKey
+}
+
+type PrivateKey struct {
+	D           *big.Int   // private exponent
+	Primes      []*big.Int // prime factors of N, has >= 2 elements.
+	Precomputed rsa.PrecomputedValues
 }
 
 func GenerateKeyPair() *KeyPair {
@@ -30,7 +41,7 @@ func Encrypt(secretMessage string, publicKey *rsa.PublicKey) (string, error) {
 
 func Decrypt(cipherText string, privateKey *rsa.PrivateKey) (string, error) {
 	ct, _ := base64.StdEncoding.DecodeString(cipherText)
-	plaintext, err := rsa.DecryptOAEP(sha256.New(), rand.Reader, privateKey, ct, []byte(""))
+	plaintext, err := rsa.DecryptOAEP(sha256.New(), rand.Reader, privateKey, ct, []byte("")) //[]byte("") this is a label, perhaps we can use for create/authenticate
 	fmt.Errorf("decryption caused error: %s", err)
 	return string(plaintext), err
 }
@@ -39,6 +50,5 @@ func PublicKeyToNonce(publicKey *rsa.PublicKey) int {
 	//this is super wrong but I don't really understand how the public key modulus/exponent works
 	//there is a task to change it
 	//we also need to expand block with rsa.PublicKey(probably)
-
 	return int(publicKey.N.Uint64())
 }

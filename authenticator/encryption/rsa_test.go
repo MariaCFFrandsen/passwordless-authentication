@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestName(t *testing.T) {
+func TestPublicKeyEncryption(t *testing.T) {
 	var(
 		keyPair = GenerateKeyPair()
 		cipher = "Super confidential message"
@@ -14,8 +14,9 @@ func TestName(t *testing.T) {
 
 	t.Run("Encryption", func(t *testing.T) {
 		encrypt, err := Encrypt(cipher, keyPair.PublicKey)
-		assert.NoErrorf(t, err, "error occurred")
-		msg := Decrypt(encrypt, keyPair.PrivateKey)
+		assert.NoErrorf(t, err, "error occurred when encrypting")
+		msg, err := Decrypt(encrypt, keyPair.PrivateKey)
+		assert.NoErrorf(t, err, "error occurred when decrypting")
 		assert.Equal(t, cipher, msg)
 	})
 

@@ -11,6 +11,7 @@ type Block struct {
 	Data     []byte
 	PrevHash []byte
 	Nonce    int
+	//pk       encryption.PublicKey //could this a pointer?
 }
 
 func CreateBlock(data string, prevHash []byte) *Block {

@@ -1,6 +1,7 @@
 package blockchain
 
 import (
+	".authenticator/encryption"
 	"fmt"
 	"github.com/dgraph-io/badger"
 )
@@ -13,9 +14,10 @@ const (
 	genesisData = "First Transaction from Genesis"
 )
 
-type APIService interface {
-	AddBlock() error
-	ValidateBlockInChain() error
+type APIService interface { //this is the API the server should have
+	AddBlock() (*Block, error)
+	ValidateBlock() error
+	SearchChainByHash(*Block, error)
 }
 
 type Blockchain struct {
@@ -60,7 +62,7 @@ func InitBlockChain() *Blockchain {
 	return &blockchain
 }
 
-func (chain *Blockchain) AddBlock(data string) { //this is return (*Block?, err)
+func (chain *Blockchain) AddBlock(data string, pk *encryption.PublicKey) (*Block, error){ //this is return (*Block?, err)
 	var lastHash []byte
 
 	err := chain.Database.View(func(txn *badger.Txn) error {
@@ -75,7 +77,7 @@ func (chain *Blockchain) AddBlock(data string) { //this is return (*Block?, err)
 	})
 	Handle(err)
 
-	newBlock := CreateBlock(data, lastHash)
+	newBlock := CreateBlock(data, lastHash, pk) //TODO addblock should take public key
 
 	err = chain.Database.Update(func(transaction *badger.Txn) error {
 		err := transaction.Set(newBlock.Hash, newBlock.Serialize())
@@ -86,6 +88,7 @@ func (chain *Blockchain) AddBlock(data string) { //this is return (*Block?, err)
 		return err
 	})
 	Handle(err)
+	return newBlock, err
 }
 
 type Iterator struct {
@@ -94,9 +97,7 @@ type Iterator struct {
 }
 
 func (chain *Blockchain) Iterator() *Iterator {
-	iterator := Iterator{chain.LastHash, chain.Database}
-
-	return &iterator
+	return &Iterator{chain.LastHash, chain.Database}
 }
 
 func (iterator *Iterator) Next() *Block {

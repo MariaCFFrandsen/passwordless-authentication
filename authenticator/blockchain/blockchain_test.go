@@ -27,7 +27,7 @@ func TestBlockchain(t *testing.T) {
 		var (
 			blockchain = InitBlockChain()
 		)
-		blockchain.AddBlock("test block")
+		blockchain.AddBlock("test block", nil)
 	})
 
 	t.Run("", func(t *testing.T) {

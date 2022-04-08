@@ -6,48 +6,54 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
-	"math/big"
 )
 
 type KeyPair struct {
-	PrivateKey *rsa.PrivateKey
-	PublicKey  *rsa.PublicKey
+	PrivateKey *PrivateKey
+	PublicKey  *PublicKey
 }
 
-type PublicKey struct {
+type PublicKey struct { //not sure if we need these
 	PublicKey *rsa.PublicKey
 }
 
 type PrivateKey struct {
-	D           *big.Int   // private exponent
-	Primes      []*big.Int // prime factors of N, has >= 2 elements.
-	Precomputed rsa.PrecomputedValues
+	PrivateKey *rsa.PrivateKey
 }
 
 func GenerateKeyPair() *KeyPair {
 	privateKey, _ := rsa.GenerateKey(rand.Reader, 2048) // 1024 - 4096 supported
 	return &KeyPair{
-		PrivateKey: privateKey,
-		PublicKey:  &privateKey.PublicKey,
+		PrivateKey: &PrivateKey{
+			privateKey,
+		},
+		PublicKey:  &PublicKey{
+			PublicKey: &privateKey.PublicKey,
+		},
 	}
 }
 
-func Encrypt(secretMessage string, publicKey *rsa.PublicKey) (string, error) {
-	ciphertext, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, publicKey, []byte(secretMessage), []byte(""))
+func Encrypt(secretMessage string, publicKey *PublicKey) (string, error) {
+	ciphertext, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, publicKey.PublicKey, []byte(secretMessage), []byte(""))
 	//also takes a label, do not know if we need it
-	fmt.Errorf("encryption caused error: %s", err)
+	fmt.Errorf("encryption caused error: %s", err) //TODO: define logger
 	return base64.StdEncoding.EncodeToString(ciphertext), err
 }
 
-func Decrypt(cipherText string, privateKey *rsa.PrivateKey) (string, error) {
+func Decrypt(cipherText string, privateKey *PrivateKey) (string, error) {
 	ct, _ := base64.StdEncoding.DecodeString(cipherText)
-	plaintext, err := rsa.DecryptOAEP(sha256.New(), rand.Reader, privateKey, ct, []byte("")) //[]byte("") this is a label, perhaps we can use for create/authenticate
+	plaintext, err := rsa.DecryptOAEP(sha256.New(), rand.Reader, privateKey.PrivateKey, ct, []byte("")) //[]byte("") this is a label, perhaps we can use for create/authenticate
 	fmt.Errorf("decryption caused error: %s", err)
 	return string(plaintext), err
 }
 
+func CreateCertificate(pair *KeyPair) error {
+	//not implemented
+	return nil
+}
+
 func PublicKeyToNonce(publicKey *rsa.PublicKey) int {
-	//this is super wrong but I don't really understand how the public key modulus/exponent works
+	//this is super wrong, but I don't really understand how the public key modulus/exponent works
 	//there is a task to change it
 	//we also need to expand block with rsa.PublicKey(probably)
 	return int(publicKey.N.Uint64())

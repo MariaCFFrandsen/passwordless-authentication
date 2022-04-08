@@ -1,6 +1,7 @@
 package blockchain
 
 import (
+	".authenticator/encryption"
 	"bytes"
 	"encoding/gob"
 	"log"
@@ -14,7 +15,7 @@ type Block struct {
 	//pk       encryption.PublicKey //could this a pointer?
 }
 
-func CreateBlock(data string, prevHash []byte) *Block {
+func CreateBlock(data string, prevHash []byte, pk *encryption.PublicKey) *Block {
 	block := &Block{[]byte{}, []byte(data), prevHash, 0}
 	pow := NewProofOfWork(block)
 	nonce, hash := pow.Run()
@@ -25,8 +26,15 @@ func CreateBlock(data string, prevHash []byte) *Block {
 	return block
 }
 
-func Genesis() *Block {
-	return CreateBlock("Genesis", []byte{})
+func Genesis() *Block { //should return err
+	pair := encryption.GenerateKeyPair()
+	err := encryption.CreateCertificate(pair)
+	if err != nil {
+		return nil
+	}
+	return CreateBlock("Genesis", []byte{}, &encryption.PublicKey{
+		PublicKey: pair.PublicKey.PublicKey,
+	})
 }
 
 func (b *Block) Serialize() []byte {

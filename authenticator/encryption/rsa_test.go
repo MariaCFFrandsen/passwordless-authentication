@@ -21,7 +21,7 @@ func TestPublicKeyEncryption(t *testing.T) {
 	})
 
 	t.Run("Acceptable nonce size", func(t *testing.T) {
-		hashPublicKey := PublicKeyToNonce(keyPair.PublicKey)
+		hashPublicKey := PublicKeyToNonce(keyPair.PublicKey.PublicKey)
 		assert.True(t, hashPublicKey < math.MaxInt64)
 	})
 }

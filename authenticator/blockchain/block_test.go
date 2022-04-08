@@ -4,7 +4,6 @@ import "testing"
 
 func TestBlock(t *testing.T) {
 
-
 	t.Run("Create Block", func(t *testing.T) {
 
 	})

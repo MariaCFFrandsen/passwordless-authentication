@@ -2,6 +2,7 @@ package chain
 
 import (
 	".authenticator/blockchain/block"
+	".authenticator/blockchain/db_access"
 	".authenticator/encryption"
 	".authenticator/utils"
 	"fmt"
@@ -14,25 +15,31 @@ const (
 	dbFile = "./tmp/blocks/MANIFEST" //rm
 )
 
+type Service interface {
+	//InsertGenesis() []byte
+	//Insert(b *block.Block) error
+	//LastHash() error
+	//NextHash(currentHash []byte) *block.Block
+	Close()
+}
+
 type Blockchain struct {
-	LastHash []byte
-	Database *badger.DB
+	LastHash  []byte
+	Database  *badger.DB
+	dbService *db_access.Access
 }
 
 func InitBlockChain(dbFilePath ...string) *Blockchain { //return err if more than 1 arg?
 	var lastHash []byte
-	var opts badger.Options
-	if len(dbFilePath) > 0 {
-		opts = badger.DefaultOptions(dbFilePath[0])
+	var connect *db_access.Access
+	var db *badger.DB
+	if len(dbFilePath) > 0 { //switch
+		connect, db = db_access.Connect(dbFilePath[0])
 	} else {
-		opts = badger.DefaultOptions(dbPath)
+		connect, db = db_access.Connect(dbPath)
 	}
 
-	opts.Truncate = true
-	db, err := badger.Open(opts)
-	utils.Handle(err)
-
-	err = db.Update(func(txn *badger.Txn) error {
+	err := db.Update(func(txn *badger.Txn) error {
 		if _, err := txn.Get([]byte("lh")); err == badger.ErrKeyNotFound {
 			fmt.Println("No existing blockchain found")
 			genBlock := genesis()
@@ -57,11 +64,11 @@ func InitBlockChain(dbFilePath ...string) *Blockchain { //return err if more tha
 	})
 	utils.Handle(err)
 
-	blockchain := Blockchain{lastHash, db}
+	blockchain := Blockchain{lastHash, db, connect}
 	return &blockchain
 }
 
-func (chain *Blockchain) AddBlock(data string, pk *encryption.PublicKey) (*block.Block, error){
+func (chain *Blockchain) AddBlock(data string, pk *encryption.PublicKey) (*block.Block, error) {
 	var lastHash []byte
 
 	err := chain.Database.View(func(txn *badger.Txn) error {

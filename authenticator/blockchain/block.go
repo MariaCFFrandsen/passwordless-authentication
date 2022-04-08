@@ -25,7 +25,7 @@ func CreateBlock(data string, prevHash []byte, pk *encryption.PublicKey) *Block 
 	return block
 } //private
 
-func Genesis() *Block { //should return err
+func genesis() *Block { //should return err
 	pair := encryption.GenerateKeyPair()
 	err := encryption.CreateCertificate(pair)
 	if err != nil {
@@ -34,7 +34,7 @@ func Genesis() *Block { //should return err
 	return CreateBlock("Genesis", []byte{}, &encryption.PublicKey{
 		PublicKey: pair.PublicKey.PublicKey,
 	})
-} //private
+}
 
 func (b *Block) Serialize() []byte {
 	var res bytes.Buffer

@@ -12,12 +12,6 @@ const (
 	dbFile = "./tmp/blocks/MANIFEST" //rm
 )
 
-type APIService interface { //this is the API the server should have
-	AddBlock() (*Block, error)
-	ValidateBlock() error
-	SearchChainByHash(*Block, error)
-}
-
 type Blockchain struct {
 	LastHash []byte
 	Database *badger.DB
@@ -39,13 +33,13 @@ func InitBlockChain(dbFilePath ...string) *Blockchain { //return err if more tha
 	err = db.Update(func(txn *badger.Txn) error {
 		if _, err := txn.Get([]byte("lh")); err == badger.ErrKeyNotFound {
 			fmt.Println("No existing blockchain found")
-			genesis := Genesis()
+			genBlock := genesis()
 			fmt.Println("Genesis proved")
-			err = txn.Set(genesis.Hash, genesis.Serialize())
+			err = txn.Set(genBlock.Hash, genBlock.Serialize())
 			Handle(err)
-			err = txn.Set([]byte("lh"), genesis.Hash)
+			err = txn.Set([]byte("lh"), genBlock.Hash)
 
-			lastHash = genesis.Hash
+			lastHash = genBlock.Hash
 
 			return err
 		} else {

@@ -1,7 +1,7 @@
 package chain
 
 import (
-	".authenticator/blockchain/block"
+	".authenticator/internal/blockchain/block"
 )
 
 type Iterator struct {

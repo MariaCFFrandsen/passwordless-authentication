@@ -1,7 +1,7 @@
 package integration_tests
 
 import (
-	blockchain2 ".authenticator/blockchain/chain"
+	blockchain2 ".authenticator/internal/blockchain/chain"
 	"bytes"
 	"fmt"
 	"github.com/stretchr/testify/assert"

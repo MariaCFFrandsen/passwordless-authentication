@@ -1,8 +1,8 @@
 package block
 
 import (
-	".authenticator/encryption"
-	".authenticator/utils"
+	".authenticator/cryptography"
+	".authenticator/internal/utils"
 	"bytes"
 	"encoding/gob"
 )
@@ -12,10 +12,10 @@ type Block struct {
 	Data     []byte
 	PrevHash []byte
 	Nonce    int
-	//pk       encryption.PublicKey //could this a pointer?
+	//pk       cryptography.PublicKey //could this a pointer?
 }
 
-func CreateBlock(data string, prevHash []byte, pk *encryption.PublicKey) *Block {
+func CreateBlock(data string, prevHash []byte, pk *cryptography.PublicKey) *Block {
 	block := &Block{[]byte{}, []byte(data), prevHash, 0}
 	pow := NewProofOfWork(block)
 	nonce, hash := pow.Run()

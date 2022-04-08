@@ -1,9 +1,9 @@
 package integration_tests
 
 import (
-	".authenticator/blockchain/block"
-	".authenticator/blockchain/chain"
-	".authenticator/encryption"
+	".authenticator/cryptography"
+	".authenticator/internal/blockchain/block"
+	".authenticator/internal/blockchain/chain"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"math/rand"
@@ -17,7 +17,7 @@ const (
 func TestBlock(t *testing.T) {
 	var (
 		bc      = chain.InitBlockChain(dbFile)
-		keyPair = encryption.GenerateKeyPair()
+		keyPair = cryptography.GenerateKeyPair()
 		rn      = rand.Intn(100)
 		block = block.CreateBlock(fmt.Sprintf("test block %d", rn),
 			bc.LastHash,

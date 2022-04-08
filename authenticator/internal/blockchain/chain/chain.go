@@ -1,9 +1,9 @@
 package chain
 
 import (
-	".authenticator/blockchain/block"
-	".authenticator/blockchain/database"
-	".authenticator/encryption"
+	".authenticator/cryptography"
+	".authenticator/internal/blockchain/block"
+	".authenticator/internal/blockchain/database"
 )
 
 const (
@@ -37,7 +37,7 @@ func InitBlockChain(dbFilePath ...string) *Blockchain { //return err if more tha
 	return &blockchain
 }
 
-func (chain *Blockchain) AddBlock(data string, pk *encryption.PublicKey) (*block.Block, error) {
+func (chain *Blockchain) AddBlock(data string, pk *cryptography.PublicKey) (*block.Block, error) {
 	lastHash := chain.dbService.LastHash()
 	newBlock := block.CreateBlock(data, lastHash, pk)
 	chain.LastHash = chain.dbService.Insert(newBlock)
@@ -45,12 +45,12 @@ func (chain *Blockchain) AddBlock(data string, pk *encryption.PublicKey) (*block
 }
 
 func genesis() *block.Block { //should return err
-	pair := encryption.GenerateKeyPair()
-	err := encryption.CreateCertificate(pair)
+	pair := cryptography.GenerateKeyPair()
+	err := cryptography.CreateCertificate(pair)
 	if err != nil {
 		return nil
 	}
-	return block.CreateBlock("Genesis", []byte{}, &encryption.PublicKey{
+	return block.CreateBlock("Genesis", []byte{}, &cryptography.PublicKey{
 		PublicKey: pair.PublicKey.PublicKey,
 	})
 }

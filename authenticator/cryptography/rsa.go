@@ -1,4 +1,4 @@
-package encryption
+package cryptography
 
 import (
 	"crypto/rand"
@@ -36,7 +36,7 @@ func GenerateKeyPair() *KeyPair {
 func Encrypt(secretMessage string, publicKey *PublicKey) (string, error) {
 	ciphertext, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, publicKey.PublicKey, []byte(secretMessage), []byte(""))
 	//also takes a label, do not know if we need it
-	fmt.Errorf("encryption caused error: %s", err) //TODO: define logger
+	fmt.Errorf("cryptography caused error: %s", err) //TODO: define logger
 	return base64.StdEncoding.EncodeToString(ciphertext), err
 }
 

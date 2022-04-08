@@ -1,9 +1,9 @@
 package acceptance_tests
 
 import (
-	".authenticator/blockchain/block"
-	".authenticator/blockchain/chain"
-	".authenticator/encryption"
+	".authenticator/cryptography"
+	".authenticator/internal/blockchain/block"
+	".authenticator/internal/blockchain/chain"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"math/rand"
@@ -12,14 +12,14 @@ import (
 )
 
 const (
-	dbPath = "..\\tmp\\blocks"
+	dbPath = "..\\..\\tmp\\blocks"
 )
 
 func TestPrint(t *testing.T) {
 	t.Run("Print added block", func(t *testing.T) {
 		var (
 			bc      = chain.InitBlockChain(dbPath)
-			keyPair = encryption.GenerateKeyPair()
+			keyPair = cryptography.GenerateKeyPair()
 			rn      = rand.Intn(100)
 		)
 

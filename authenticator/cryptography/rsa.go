@@ -53,3 +53,8 @@ func PublicKeyToNonce(publicKey *rsa.PublicKey) int {
 	//we also need to expand block with rsa.PublicKey(probably)
 	return int(publicKey.N.Uint64())
 }
+
+func Test(keyPair KeyPair, k Certificate) bool {
+	return keyPair.PublicKey.PublicKey.Equal(k.KeyPair.PublicKey) &&
+		keyPair.PrivateKey.PrivateKey.Equal(k.KeyPair.PrivateKey)
+}

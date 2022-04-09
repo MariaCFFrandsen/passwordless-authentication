@@ -5,6 +5,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	crypto "crypto/x509"
 	"io"
 	"log"
 	"os"
@@ -12,11 +13,26 @@ import (
 
 type Certificate struct {
 	KeyPair    *KeyPair
+	PrivateKey []byte
+	PublicKey  []byte
 	MacAddress []string
 	Text       string
 }
 
-func CreateCertificate(txt string) {
+func InitCertificate(pair KeyPair) Certificate {
+	pk := crypto.MarshalPKCS1PrivateKey(pair.PrivateKey.PrivateKey)
+	puk := crypto.MarshalPKCS1PublicKey(pair.PublicKey.PublicKey)
+
+	return Certificate{
+		KeyPair:    nil, //we do not want to this field to be part of the []byte
+		PrivateKey: pk,
+		PublicKey:  puk,
+		MacAddress: GetMacAddr(),
+		Text:       "we try",
+	}
+}
+
+func CreateCertificate(certificate Certificate) {
 	CreateSymmetricKey()
 	key := ReadKeyFile()
 
@@ -39,10 +55,7 @@ func CreateCertificate(txt string) {
 	defer outfile.Close()
 
 	// The buffer size must be multiple of 16 bytes
-	//	buf := make([]byte, 1024)
-	bMsg := ToBytes(Certificate{
-		Text: txt,
-	})
+	bMsg := ToBytes(certificate)
 	n := len(bMsg)
 	stream := cipher.NewCTR(block, iv)
 	stream.XORKeyStream(bMsg, bMsg[:n])
@@ -53,7 +66,7 @@ func CreateCertificate(txt string) {
 	outfile.Write(iv)
 }
 
-func ReadCertificate() string {
+func ReadCertificate() Certificate {
 	infile, err := os.Open("ciphertext.bin")
 	if err != nil {
 		log.Fatal(err)
@@ -84,7 +97,7 @@ func ReadCertificate() string {
 	}
 
 	// The buffer size must be multiple of 16 bytes
-	buf := make([]byte, 1024)
+	buf := make([]byte, 4096)
 	stream := cipher.NewCTR(block, iv)
 	for {
 		n, err := infile.Read(buf)
@@ -106,7 +119,7 @@ func ReadCertificate() string {
 			break
 		}
 	}
-	return FromBytes(buf[0 : fi.Size()-int64(len(iv))]).Text
+	return FromBytes(buf[0 : fi.Size()-int64(len(iv))])
 }
 
 func CreateSymmetricKey() []byte {
@@ -125,4 +138,8 @@ func ReadKeyFile() []byte {
 	_, err := infile.Read(bytes)
 	utils.Handle(err)
 	return bytes
+}
+
+func Validate(certificate Certificate) bool {
+	return true
 }

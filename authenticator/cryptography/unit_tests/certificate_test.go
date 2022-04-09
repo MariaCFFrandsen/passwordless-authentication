@@ -2,12 +2,9 @@ package unit_tests
 
 import (
 	".authenticator/cryptography"
+	crypto "crypto/x509"
 	"github.com/stretchr/testify/assert"
 	"testing"
-)
-
-var (
-	key = []byte("example key 1234")
 )
 
 func TestCertificate(t *testing.T) {
@@ -21,45 +18,35 @@ func TestCertificate(t *testing.T) {
 		assert.Equal(t, text, c.Text)
 	})
 
-	t.Run("Marshalling/Unmarshalling of string", func(t *testing.T) {
-		var (
-			text = "hello my friend"
-		)
-		sToBytes := cryptography.SToBytes(text)
-		str := cryptography.SFromBytes(sToBytes)
-		assert.Equal(t, text, str)
-	})
-
-	t.Run("Unmarshalling a string", func(t *testing.T) {
-		var (
-			text = "hello my friend"
-		)
-		byteSlice := []byte(text)
-		assert.Equal(t, 15, len(byteSlice))
-	})
-
 	t.Run("Create certificate", func(t *testing.T) {
 		var (
-			text = "hello my friend"
+			keyPair     = cryptography.GenerateKeyPair()
+			certificate = cryptography.InitCertificate(*keyPair)
 		)
-		cryptography.CreateCertificate(text)
+
+		cryptography.CreateCertificate(certificate)
 	})
 
 	t.Run("Decrypt certificate", func(t *testing.T) {
-		var (
-			text = "hello my friend"
-		)
-		plaintext := cryptography.ReadCertificate()
-		assert.Equal(t, text, plaintext)
+		c := cryptography.ReadCertificate()
+		assert.Equal(t, "we try", c.Text)
+		assert.Equal(t, cryptography.GetMacAddr(), c.MacAddress)
 	})
 
 	t.Run("DUAl test", func(t *testing.T) {
 		var (
-			text = "hello my friend"
+			keyPair     = cryptography.GenerateKeyPair()
+			certificate = cryptography.InitCertificate(*keyPair)
 		)
-		cryptography.CreateCertificate(text)
-		plaintext := cryptography.ReadCertificate()
-		assert.Equal(t, text, plaintext)
+		cryptography.CreateCertificate(certificate)
+		c := cryptography.ReadCertificate()
+		assert.Equal(t, "we try", c.Text)
+		assert.Equal(t, cryptography.GetMacAddr(), c.MacAddress)
+		privateKey, _ := crypto.ParsePKCS1PrivateKey(c.PrivateKey)
+		publickey, _ := crypto.ParsePKCS1PublicKey(c.PublicKey)
+		assert.True(t, keyPair.PrivateKey.PrivateKey.Equal(privateKey))
+		assert.True(t, keyPair.PrivateKey.PrivateKey.PublicKey.Equal(publickey))
+
 	})
 
 	t.Run("Symmetric Key Generation", func(t *testing.T) {
@@ -74,4 +61,41 @@ func TestCertificate(t *testing.T) {
 		assert.Equal(t, symmetricKey, readKey)
 	})
 
+	t.Run("length of certificate", func(t *testing.T) {
+		var (
+			keyPair     = *cryptography.GenerateKeyPair()
+			mac         = cryptography.GetMacAddr()
+			txt         = "worked!"
+			pk          = crypto.MarshalPKCS1PrivateKey(keyPair.PrivateKey.PrivateKey)
+			puk         = crypto.MarshalPKCS1PublicKey(keyPair.PublicKey.PublicKey)
+			certificate = cryptography.Certificate{
+				KeyPair:    &keyPair,
+				PrivateKey: pk,
+				PublicKey:  puk,
+				MacAddress: mac,
+				Text:       "worked!",
+			}
+		)
+
+		bytes := cryptography.ToBytes(certificate)
+		fromBytes := cryptography.FromBytes(bytes)
+		privateKey, _ := crypto.ParsePKCS1PrivateKey(fromBytes.PrivateKey)
+		publickey, _ := crypto.ParsePKCS1PublicKey(fromBytes.PublicKey)
+		assert.True(t, keyPair.PrivateKey.PrivateKey.Equal(privateKey))
+		assert.True(t, keyPair.PrivateKey.PrivateKey.PublicKey.Equal(publickey))
+		assert.Equal(t, mac, fromBytes.MacAddress)
+		assert.Equal(t, txt, fromBytes.Text)
+		assert.True(t, 4096 > len(bytes))
+		var (
+			msg = "this is a secret"
+		)
+		cipher, _ := cryptography.Encrypt(msg, &cryptography.PublicKey{
+			PublicKey: publickey,
+		})
+
+		decrypt, _ := cryptography.Decrypt(cipher, &cryptography.PrivateKey{
+			PrivateKey: privateKey,
+		})
+		assert.Equal(t, msg, decrypt)
+	})
 }

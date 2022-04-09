@@ -5,6 +5,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"crypto/rsa"
 	crypto "crypto/x509"
 	"io"
 	"log"
@@ -12,7 +13,8 @@ import (
 )
 
 type Certificate struct {
-	KeyPair    *KeyPair
+	PRK        *rsa.PrivateKey
+	PUK        *rsa.PublicKey
 	PrivateKey []byte
 	PublicKey  []byte
 	MacAddress []string
@@ -24,7 +26,6 @@ func InitCertificate(pair KeyPair) Certificate {
 	puk := crypto.MarshalPKCS1PublicKey(pair.PublicKey.PublicKey)
 
 	return Certificate{
-		KeyPair:    nil, //we do not want to this field to be part of the []byte
 		PrivateKey: pk,
 		PublicKey:  puk,
 		MacAddress: GetMacAddr(),

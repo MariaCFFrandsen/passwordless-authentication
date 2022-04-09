@@ -42,19 +42,14 @@ func TestCertificate(t *testing.T) {
 		c := cryptography.ReadCertificate()
 		assert.Equal(t, "we try", c.Text)
 		assert.Equal(t, cryptography.GetMacAddr(), c.MacAddress)
-		privateKey, _ := crypto.ParsePKCS1PrivateKey(c.PrivateKey)
-		publickey, _ := crypto.ParsePKCS1PublicKey(c.PublicKey)
-		assert.True(t, keyPair.PrivateKey.PrivateKey.Equal(privateKey))
-		assert.True(t, keyPair.PrivateKey.PrivateKey.PublicKey.Equal(publickey))
+		assert.True(t, keyPair.PrivateKey.PrivateKey.Equal(c.PRK))
+		assert.True(t, keyPair.PrivateKey.PrivateKey.PublicKey.Equal(c.PUK))
 
 		c2 := cryptography.ReadCertificate()
 		assert.Equal(t, "we try", c2.Text)
 		assert.Equal(t, cryptography.GetMacAddr(), c2.MacAddress)
-		privateKey2, _ := crypto.ParsePKCS1PrivateKey(c2.PrivateKey)
-		publickey2, _ := crypto.ParsePKCS1PublicKey(c2.PublicKey)
-		assert.True(t, keyPair.PrivateKey.PrivateKey.Equal(privateKey2))
-		assert.True(t, keyPair.PrivateKey.PrivateKey.PublicKey.Equal(publickey2))
-
+		assert.True(t, keyPair.PrivateKey.PrivateKey.Equal(c.PRK))
+		assert.True(t, keyPair.PrivateKey.PrivateKey.PublicKey.Equal(c.PUK))
 	})
 
 	t.Run("Symmetric Key Generation", func(t *testing.T) {
@@ -77,7 +72,6 @@ func TestCertificate(t *testing.T) {
 			pk          = crypto.MarshalPKCS1PrivateKey(keyPair.PrivateKey.PrivateKey)
 			puk         = crypto.MarshalPKCS1PublicKey(keyPair.PublicKey.PublicKey)
 			certificate = cryptography.Certificate{
-				KeyPair:    &keyPair,
 				PrivateKey: pk,
 				PublicKey:  puk,
 				MacAddress: mac,

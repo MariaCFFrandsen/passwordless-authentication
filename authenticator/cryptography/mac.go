@@ -3,6 +3,7 @@ package cryptography
 import (
 	".authenticator/internal/utils"
 	"bytes"
+	crypto "crypto/x509"
 	"encoding/gob"
 	"net"
 )
@@ -34,21 +35,9 @@ func FromBytes(byteSlice []byte) Certificate {
 	var unmarshal Certificate
 	bf := bytes.NewBuffer(byteSlice)
 	gob.NewDecoder(bf).Decode(&unmarshal)
-
-	/*
-		privateKey, _ := crypto.ParsePKCS1PrivateKey(unmarshal.PrivateKey)
-		publickey, _ := crypto.ParsePKCS1PublicKey(unmarshal.PublicKey)
-
-		unmarshal.KeyPair = &KeyPair{
-			PrivateKey: &PrivateKey{
-				PrivateKey: privateKey,
-			},
-			PublicKey: &PublicKey{
-				PublicKey: publickey,
-			},
-		}
-
-	*/
-
+	privateKey, _ := crypto.ParsePKCS1PrivateKey(unmarshal.PrivateKey)
+	publickey, _ := crypto.ParsePKCS1PublicKey(unmarshal.PublicKey)
+	unmarshal.PRK = privateKey
+	unmarshal.PUK = publickey
 	return unmarshal
 }

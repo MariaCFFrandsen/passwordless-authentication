@@ -28,7 +28,7 @@ func TestCertificate(t *testing.T) {
 	})
 
 	t.Run("Decrypt certificate", func(t *testing.T) {
-		c := cryptography.ReadCertificate()
+		c := cryptography.ReadCertificate() //if we experience problems, try to change to txt
 		assert.Equal(t, "we try", c.Text)
 		assert.Equal(t, cryptography.GetMacAddr(), c.MacAddress)
 	})
@@ -46,6 +46,14 @@ func TestCertificate(t *testing.T) {
 		publickey, _ := crypto.ParsePKCS1PublicKey(c.PublicKey)
 		assert.True(t, keyPair.PrivateKey.PrivateKey.Equal(privateKey))
 		assert.True(t, keyPair.PrivateKey.PrivateKey.PublicKey.Equal(publickey))
+
+		c2 := cryptography.ReadCertificate()
+		assert.Equal(t, "we try", c2.Text)
+		assert.Equal(t, cryptography.GetMacAddr(), c2.MacAddress)
+		privateKey2, _ := crypto.ParsePKCS1PrivateKey(c2.PrivateKey)
+		publickey2, _ := crypto.ParsePKCS1PublicKey(c2.PublicKey)
+		assert.True(t, keyPair.PrivateKey.PrivateKey.Equal(privateKey2))
+		assert.True(t, keyPair.PrivateKey.PrivateKey.PublicKey.Equal(publickey2))
 
 	})
 

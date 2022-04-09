@@ -2,8 +2,6 @@ package unit_tests
 
 import (
 	".authenticator/cryptography"
-	"bytes"
-	"encoding/gob"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -18,13 +16,8 @@ func TestCertificate(t *testing.T) {
 			text = "hello my friend"
 		)
 		c := cryptography.Certificate{Text: text}
-		buffer := &bytes.Buffer{}
-		gob.NewEncoder(buffer).Encode(c)
-		byteSlice := buffer.Bytes()
-
-		var unmarshal cryptography.Certificate
-		bf := bytes.NewBuffer(byteSlice)
-		gob.NewDecoder(bf).Decode(&unmarshal)
+		toBytes := cryptography.ToBytes(c)
+		cryptography.FromBytes(toBytes)
 		assert.Equal(t, text, c.Text)
 	})
 
@@ -32,14 +25,9 @@ func TestCertificate(t *testing.T) {
 		var (
 			text = "hello my friend"
 		)
-		var s string
-		buffer := &bytes.Buffer{}
-		gob.NewEncoder(buffer).Encode(text)
-		byteSlice := buffer.Bytes()
-
-		bf := bytes.NewBuffer(byteSlice)
-		gob.NewDecoder(bf).Decode(&s)
-		assert.Equal(t, text, s)
+		sToBytes := cryptography.SToBytes(text)
+		str := cryptography.SFromBytes(sToBytes)
+		assert.Equal(t, text, str)
 	})
 
 	t.Run("Unmarshalling a string", func(t *testing.T) {

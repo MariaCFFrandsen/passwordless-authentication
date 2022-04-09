@@ -11,27 +11,15 @@ import (
 )
 
 type Certificate struct {
-	keyPair    *KeyPair
-	macAddress []string
+	KeyPair    *KeyPair
+	MacAddress []string
 	Text       string
 }
 
 func CreateCertificate(txt string) {
-	infile, err := os.Open("plaintext.txt")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer infile.Close()
 	CreateSymmetricKey()
 	key := ReadKeyFile()
 
-	// The key should be 16 bytes (AES-128), 24 bytes (AES-192) or
-	// 32 bytes (AES-256)
-	//key, err := ioutil.ReadFile("key")
-
-	//key := []byte("example key 1234") //mac address?
-	utils.Handle(err)
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		log.Panic(err)
@@ -51,25 +39,16 @@ func CreateCertificate(txt string) {
 	defer outfile.Close()
 
 	// The buffer size must be multiple of 16 bytes
-	buf := make([]byte, 1024)
+	//	buf := make([]byte, 1024)
+	bMsg := ToBytes(Certificate{
+		Text: txt,
+	})
+	n := len(bMsg)
 	stream := cipher.NewCTR(block, iv)
-	for {
-		n, err := infile.Read(buf)
-		if n > 0 {
-			stream.XORKeyStream(buf, buf[:n])
-			// Write into file
-			outfile.Write(buf[:n])
-		}
+	stream.XORKeyStream(bMsg, bMsg[:n])
+	// Write into file
+	outfile.Write(bMsg[:n])
 
-		if err == io.EOF {
-			break
-		}
-
-		if err != nil {
-			log.Printf("Read %d bytes: %v", n, err)
-			break
-		}
-	}
 	// Append the IV
 	outfile.Write(iv)
 }
@@ -83,7 +62,6 @@ func ReadCertificate() string {
 
 	// The key should be 16 bytes (AES-128), 24 bytes (AES-192) or
 	// 32 bytes (AES-256)
-	//key := []byte("example key 1234") //mac address?
 
 	key := ReadKeyFile()
 	block, err := aes.NewCipher(key)
@@ -128,7 +106,7 @@ func ReadCertificate() string {
 			break
 		}
 	}
-	return string(buf[0 : fi.Size()-int64(len(iv))])
+	return FromBytes(buf[0 : fi.Size()-int64(len(iv))]).Text
 }
 
 func CreateSymmetricKey() []byte {
@@ -144,6 +122,7 @@ func CreateSymmetricKey() []byte {
 func ReadKeyFile() []byte {
 	bytes := make([]byte, 16)
 	infile, _ := os.Open("key.txt")
-	infile.Read(bytes)
+	_, err := infile.Read(bytes)
+	utils.Handle(err)
 	return bytes
 }

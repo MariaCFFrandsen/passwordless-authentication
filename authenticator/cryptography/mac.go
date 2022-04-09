@@ -43,18 +43,30 @@ func getMacAddr2() ([]byte, error) {
 	return byteSlice, nil
 }
 
-func ToBytes(certificate *Certificate) []byte {
-	return nil
+func ToBytes(certificate Certificate) []byte {
+	buffer := &bytes.Buffer{}
+	gob.NewEncoder(buffer).Encode(certificate)
+	byteSlice := buffer.Bytes()
+	return byteSlice
 }
 
-func FromBytes(b []byte) *Certificate {
-	return nil
+func FromBytes(byteSlice []byte) *Certificate {
+	var unmarshal Certificate
+	bf := bytes.NewBuffer(byteSlice)
+	gob.NewDecoder(bf).Decode(&unmarshal)
+	return &unmarshal
 }
 
 func SToBytes(s string) []byte {
-	return nil
+	buffer := &bytes.Buffer{}
+	gob.NewEncoder(buffer).Encode(s)
+	byteSlice := buffer.Bytes()
+	return byteSlice
 }
 
 func SFromBytes(b []byte) string {
-	return "nil"
+	var s *string
+	bf := bytes.NewBuffer(b)
+	gob.NewDecoder(bf).Decode(&s)
+	return *s
 }

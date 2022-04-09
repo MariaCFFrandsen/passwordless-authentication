@@ -6,7 +6,6 @@ import (
 )
 
 type Service interface { //this is the API the server should have
-	AddBlock(data string, key cryptography.PublicKey) (*block.Block, error)
-	ValidateBlock(hash []byte) error
-	SearchChainByHash(hash []byte) (*block.Block, error)
+	CreateUser(data string, key cryptography.PublicKey) (*block.Block, error)
+	AuthenticateUser(hash []byte) bool
 }

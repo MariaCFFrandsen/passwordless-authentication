@@ -1,4 +1,4 @@
-package cryptography
+package cryptography //might need a go.mod
 
 import (
 	"crypto/rand"
@@ -27,7 +27,7 @@ func GenerateKeyPair() *KeyPair {
 		PrivateKey: &PrivateKey{
 			privateKey,
 		},
-		PublicKey:  &PublicKey{
+		PublicKey: &PublicKey{
 			PublicKey: &privateKey.PublicKey,
 		},
 	}
@@ -45,11 +45,6 @@ func Decrypt(cipherText string, privateKey *PrivateKey) (string, error) {
 	plaintext, err := rsa.DecryptOAEP(sha256.New(), rand.Reader, privateKey.PrivateKey, ct, []byte("")) //[]byte("") this is a label, perhaps we can use for create/authenticate
 	fmt.Errorf("decryption caused error: %s", err)
 	return string(plaintext), err
-}
-
-func CreateCertificate(pair *KeyPair) error {
-	//not implemented
-	return nil
 }
 
 func PublicKeyToNonce(publicKey *rsa.PublicKey) int {

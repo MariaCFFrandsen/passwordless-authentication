@@ -46,10 +46,7 @@ func (chain *Blockchain) AddBlock(data string, pk *cryptography.PublicKey) (*blo
 
 func genesis() *block.Block { //should return err
 	pair := cryptography.GenerateKeyPair()
-	err := cryptography.CreateCertificate(pair)
-	if err != nil {
-		return nil
-	}
+	cryptography.SaveCertificate(cryptography.CreateCertificate(*pair))
 	return block.CreateBlock("Genesis", []byte{}, &cryptography.PublicKey{
 		PublicKey: pair.PublicKey.PublicKey,
 	})

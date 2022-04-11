@@ -7,6 +7,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	crypto "crypto/x509"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -18,10 +19,18 @@ type Certificate struct {
 	PrivateKey []byte
 	PublicKey  []byte
 	MacAddress []string
-	Text       string
+	Text       string //this could file-name, so we can extend genesis and etc
 }
 
-func InitCertificate(pair KeyPair) Certificate {
+type CertificateService interface {
+	CreateCertificate(pair KeyPair) Certificate
+	SaveCertificate(certificate Certificate)
+	RetrieveCertificate() Certificate
+	CreateSymmetricKey() []byte
+	RetrieveSymmetricKey() []byte
+}
+
+func CreateCertificate(pair KeyPair) Certificate {
 	pk := crypto.MarshalPKCS1PrivateKey(pair.PrivateKey.PrivateKey)
 	puk := crypto.MarshalPKCS1PublicKey(pair.PublicKey.PublicKey)
 
@@ -33,77 +42,60 @@ func InitCertificate(pair KeyPair) Certificate {
 	}
 }
 
-func CreateCertificate(certificate Certificate) {
+func SaveCertificate(certificate Certificate, path ...string) {
+	//check if key and certificate exists
 	CreateSymmetricKey()
-	key := ReadKeyFile()
+	key := RetrieveSymmetricKey()
 
 	block, err := aes.NewCipher(key)
-	if err != nil {
-		log.Panic(err)
-	}
+	utils.Handle(err)
 
-	// Never use more than 2^32 random nonces with a given key
-	// because of the risk of repeat.
 	iv := make([]byte, block.BlockSize())
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		log.Fatal(err)
+	_, err = io.ReadFull(rand.Reader, iv)
+	utils.Handle(err)
+	var outfile *os.File
+	if path != nil {
+		outfile, err = os.OpenFile(fmt.Sprintf("%s-certificate.bin", path[0]), os.O_RDWR|os.O_CREATE, 0777) //should be less permissions
+	} else {
+		outfile, err = os.OpenFile("certificate.bin", os.O_RDWR|os.O_CREATE, 0777) //should be less permissions
 	}
-
-	outfile, err := os.OpenFile("ciphertext.bin", os.O_RDWR|os.O_CREATE, 0777)
-	if err != nil {
-		log.Fatal(err)
-	}
+	utils.Handle(err)
 	defer outfile.Close()
 
-	// The buffer size must be multiple of 16 bytes
 	bMsg := ToBytes(certificate)
 	n := len(bMsg)
 	stream := cipher.NewCTR(block, iv)
 	stream.XORKeyStream(bMsg, bMsg[:n])
-	// Write into file
 	outfile.Write(bMsg[:n])
-
-	// Append the IV
 	outfile.Write(iv)
 }
 
-func ReadCertificate() Certificate {
-	infile, err := os.Open("ciphertext.bin")
-	if err != nil {
-		log.Fatal(err)
+func RetrieveCertificate(path ...string) Certificate {
+	var infile *os.File
+	if path != nil {
+		infile, _ = os.Open(fmt.Sprintf("%s-certificate.bin", path[0]))
+	} else {
+		infile, _ = os.Open("certificate.bin")
 	}
 	defer infile.Close()
 
-	// The key should be 16 bytes (AES-128), 24 bytes (AES-192) or
-	// 32 bytes (AES-256)
-
-	key := ReadKeyFile()
+	key := RetrieveSymmetricKey()
 	block, err := aes.NewCipher(key)
-	if err != nil {
-		log.Panic(err)
-	}
+	utils.Handle(err)
 
-	// Never use more than 2^32 random nonces with a given key
-	// because of the risk of repeat.
 	fi, err := infile.Stat()
-	if err != nil {
-		log.Fatal(err)
-	}
+	utils.Handle(err)
 
 	iv := make([]byte, block.BlockSize())
 	msgLen := fi.Size() - int64(len(iv))
 	_, err = infile.ReadAt(iv, msgLen)
-	if err != nil {
-		log.Fatal(err)
-	}
+	utils.Handle(err)
 
-	// The buffer size must be multiple of 16 bytes
 	buf := make([]byte, 4096)
 	stream := cipher.NewCTR(block, iv)
 	for {
 		n, err := infile.Read(buf)
 		if n > 0 {
-			// The last bytes are the IV, don't belong the original message
 			if n > int(msgLen) {
 				n = int(msgLen)
 			}
@@ -123,24 +115,52 @@ func ReadCertificate() Certificate {
 	return FromBytes(buf[0 : fi.Size()-int64(len(iv))])
 }
 
-func CreateSymmetricKey() []byte {
+func CreateSymmetricKey(path ...string) []byte { //all these should have a check that either zero or no arguments is given
 	token := make([]byte, 16)
-	rand.Read(token)
+	rand.Read(token) //this could also be seeded
 
-	keyfile, err := os.OpenFile("key.txt", os.O_RDWR|os.O_CREATE, 0777)
-	utils.Handle(err)
+	var keyfile *os.File
+	if path != nil {
+		keyfile, _ = os.OpenFile(fmt.Sprintf("%s-key.txt", path[0]), os.O_RDWR|os.O_CREATE, 0777)
+
+	} else {
+		keyfile, _ = os.OpenFile("key.txt", os.O_RDWR|os.O_CREATE, 0777) //permission 0700 ? så der er ikke read exe
+	}
 	keyfile.Write(token)
 	return token
 }
 
-func ReadKeyFile() []byte {
+func RetrieveSymmetricKey(path ...string) []byte {
+	var infile *os.File
 	bytes := make([]byte, 16)
-	infile, _ := os.Open("key.txt")
+
+	if path != nil {
+		infile, _ = os.OpenFile(fmt.Sprintf("%s-key.txt", path[0]), os.O_RDWR|os.O_CREATE, 0777)
+
+	} else {
+		infile, _ = os.OpenFile("key.txt", os.O_RDWR|os.O_CREATE, 0777) //permission 0700 ? så der er ikke read exe
+	}
 	_, err := infile.Read(bytes)
 	utils.Handle(err)
 	return bytes
 }
 
-func Validate(certificate Certificate) bool {
-	return true
+func createIV(block cipher.Block) []byte {
+	iv := make([]byte, block.BlockSize())
+	_, err := io.ReadFull(rand.Reader, iv)
+	utils.Handle(err)
+	return iv
+}
+
+func readAndWriteToFile(certificate Certificate, block cipher.Block, iv []byte) {
+	outfile, err := os.OpenFile("certificate.bin", os.O_RDWR|os.O_CREATE, 0777)
+	utils.Handle(err)
+	defer outfile.Close()
+
+	bMsg := ToBytes(certificate)
+	n := len(bMsg)
+	stream := cipher.NewCTR(block, iv)
+	stream.XORKeyStream(bMsg, bMsg[:n])
+	outfile.Write(bMsg[:n])
+	outfile.Write(iv)
 }

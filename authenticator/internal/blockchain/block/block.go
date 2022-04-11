@@ -12,7 +12,7 @@ type Block struct {
 	Data     []byte
 	PrevHash []byte
 	Nonce    int
-	//pk       cryptography.PublicKey //could this a pointer?
+	//publicKey []byte
 }
 
 func CreateBlock(data string, prevHash []byte, pk *cryptography.PublicKey) *Block {
@@ -26,25 +26,18 @@ func CreateBlock(data string, prevHash []byte, pk *cryptography.PublicKey) *Bloc
 	return block
 } //private
 
-func (b *Block) Serialize() []byte {
+func (b *Block) Serialize() []byte { //figure out what do with the publickey
 	var res bytes.Buffer
 	encoder := gob.NewEncoder(&res)
-
 	err := encoder.Encode(b)
-
 	utils.Handle(err)
-
 	return res.Bytes()
 }
 
-func Deserialize(data []byte) *Block {
+func Deserialize(data []byte) *Block { //figure out what do with the publickey
 	var block Block
-
 	decoder := gob.NewDecoder(bytes.NewReader(data))
-
 	err := decoder.Decode(&block)
-
 	utils.Handle(err)
-
 	return &block
 }

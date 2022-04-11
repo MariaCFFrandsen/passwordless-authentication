@@ -21,14 +21,14 @@ func TestCertificate(t *testing.T) {
 	t.Run("Create certificate", func(t *testing.T) {
 		var (
 			keyPair     = cryptography.GenerateKeyPair()
-			certificate = cryptography.InitCertificate(*keyPair)
+			certificate = cryptography.CreateCertificate(*keyPair)
 		)
 
-		cryptography.CreateCertificate(certificate)
+		cryptography.SaveCertificate(certificate)
 	})
 
 	t.Run("Decrypt certificate", func(t *testing.T) {
-		c := cryptography.ReadCertificate() //if we experience problems, try to change to txt
+		c := cryptography.RetrieveCertificate() //if we experience problems, try to change to txt
 		assert.Equal(t, "we try", c.Text)
 		assert.Equal(t, cryptography.GetMacAddr(), c.MacAddress)
 	})
@@ -36,16 +36,16 @@ func TestCertificate(t *testing.T) {
 	t.Run("DUAl test", func(t *testing.T) {
 		var (
 			keyPair     = cryptography.GenerateKeyPair()
-			certificate = cryptography.InitCertificate(*keyPair)
+			certificate = cryptography.CreateCertificate(*keyPair)
 		)
-		cryptography.CreateCertificate(certificate)
-		c := cryptography.ReadCertificate()
+		cryptography.SaveCertificate(certificate)
+		c := cryptography.RetrieveCertificate()
 		assert.Equal(t, "we try", c.Text)
 		assert.Equal(t, cryptography.GetMacAddr(), c.MacAddress)
 		assert.True(t, keyPair.PrivateKey.PrivateKey.Equal(c.PRK))
 		assert.True(t, keyPair.PrivateKey.PrivateKey.PublicKey.Equal(c.PUK))
 
-		c2 := cryptography.ReadCertificate()
+		c2 := cryptography.RetrieveCertificate()
 		assert.Equal(t, "we try", c2.Text)
 		assert.Equal(t, cryptography.GetMacAddr(), c2.MacAddress)
 		assert.True(t, keyPair.PrivateKey.PrivateKey.Equal(c.PRK))
@@ -60,7 +60,7 @@ func TestCertificate(t *testing.T) {
 
 	t.Run("write and read key file", func(t *testing.T) {
 		symmetricKey := cryptography.CreateSymmetricKey()
-		readKey := cryptography.ReadKeyFile()
+		readKey := cryptography.RetrieveSymmetricKey()
 		assert.Equal(t, symmetricKey, readKey)
 	})
 

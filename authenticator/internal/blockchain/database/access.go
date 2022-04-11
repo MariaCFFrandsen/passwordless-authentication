@@ -23,7 +23,7 @@ func InitDb(dbPath string) *Access { //receiver?
 func (a *Access) Insert(newBlock *block.Block) []byte {
 	var lastHash []byte
 	err := a.Db.Update(func(transaction *badger.Txn) error { //rename transaction
-		err := transaction.Set(newBlock.Hash, newBlock.Serialize())
+		err := transaction.Set(newBlock.Hash, newBlock.Serialize()) //should primary key be the public key?
 		utils.Handle(err)
 		err = transaction.Set([]byte("lh"), newBlock.Hash)
 

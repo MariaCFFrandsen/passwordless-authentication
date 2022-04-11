@@ -32,7 +32,7 @@ func InitBlockChain(dbFilePath ...string) *Blockchain { //return err if more tha
 	} else {
 		db = database.InitDb(dbPath)
 	}
-	lastHash := db.CreateOrFindGenesis(genesis())
+	lastHash := db.CreateOrFindGenesis(Genesis())
 	blockchain := Blockchain{lastHash, db}
 	return &blockchain
 }
@@ -44,7 +44,7 @@ func (chain *Blockchain) AddBlock(data string, pk *cryptography.PublicKey) (*blo
 	return newBlock, nil
 }
 
-func genesis() *block.Block { //should return err
+func Genesis() *block.Block { //should return err
 	pair := cryptography.GenerateKeyPair()
 	cryptography.SaveCertificate(cryptography.CreateCertificate(*pair))
 	return block.CreateBlock("Genesis", []byte{}, &cryptography.PublicKey{

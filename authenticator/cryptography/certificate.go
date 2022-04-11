@@ -43,7 +43,16 @@ func CreateCertificate(pair KeyPair) Certificate {
 }
 
 func SaveCertificate(certificate Certificate, path ...string) {
+	var exists bool
 	//check if key and certificate exists
+	if path != nil {
+		exists = utils.FileExists(fmt.Sprintf("%s-certificate.bin"))
+	} else {
+		exists = utils.FileExists("certificate.bin")
+	}
+	if exists {
+		return //this should probably return an error
+	}
 	CreateSymmetricKey()
 	key := RetrieveSymmetricKey()
 

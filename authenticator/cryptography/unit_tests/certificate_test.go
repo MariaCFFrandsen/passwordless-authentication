@@ -28,7 +28,7 @@ func TestCertificate(t *testing.T) {
 	})
 
 	t.Run("Decrypt certificate", func(t *testing.T) {
-		c := cryptography.RetrieveCertificate() //if we experience problems, try to change to txt
+		c := cryptography.RetrieveCertificate("genesis") //if we experience problems, try to change to txt
 		assert.Equal(t, "we try", c.Text)
 		assert.Equal(t, cryptography.GetMacAddr(), c.MacAddress)
 	})
@@ -38,14 +38,14 @@ func TestCertificate(t *testing.T) {
 			keyPair     = cryptography.GenerateKeyPair()
 			certificate = cryptography.CreateCertificate(*keyPair)
 		)
-		cryptography.SaveCertificate(certificate)
-		c := cryptography.RetrieveCertificate()
+		cryptography.SaveCertificate(certificate, "genesis")
+		c := cryptography.RetrieveCertificate("genesis")
 		assert.Equal(t, "we try", c.Text)
 		assert.Equal(t, cryptography.GetMacAddr(), c.MacAddress)
 		assert.True(t, keyPair.PrivateKey.PrivateKey.Equal(c.PRK))
 		assert.True(t, keyPair.PrivateKey.PrivateKey.PublicKey.Equal(c.PUK))
 
-		c2 := cryptography.RetrieveCertificate()
+		c2 := cryptography.RetrieveCertificate("genesis")
 		assert.Equal(t, "we try", c2.Text)
 		assert.Equal(t, cryptography.GetMacAddr(), c2.MacAddress)
 		assert.True(t, keyPair.PrivateKey.PrivateKey.Equal(c.PRK))

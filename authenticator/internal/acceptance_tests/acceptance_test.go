@@ -90,4 +90,8 @@ func TestPrint(t *testing.T) {
 		})
 		assert.Equal(t, msg, decrypt)
 	})
+
+	t.Run("AddBlock with certificate", func(t *testing.T) {
+
+	})
 }

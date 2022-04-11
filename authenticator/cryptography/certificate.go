@@ -153,23 +153,3 @@ func RetrieveSymmetricKey(path ...string) []byte {
 	utils.Handle(err)
 	return bytes
 }
-
-func createIV(block cipher.Block) []byte {
-	iv := make([]byte, block.BlockSize())
-	_, err := io.ReadFull(rand.Reader, iv)
-	utils.Handle(err)
-	return iv
-}
-
-func readAndWriteToFile(certificate Certificate, block cipher.Block, iv []byte) {
-	outfile, err := os.OpenFile("certificate.bin", os.O_RDWR|os.O_CREATE, 0777)
-	utils.Handle(err)
-	defer outfile.Close()
-
-	bMsg := ToBytes(certificate)
-	n := len(bMsg)
-	stream := cipher.NewCTR(block, iv)
-	stream.XORKeyStream(bMsg, bMsg[:n])
-	outfile.Write(bMsg[:n])
-	outfile.Write(iv)
-}

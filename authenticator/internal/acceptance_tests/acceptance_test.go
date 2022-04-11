@@ -4,6 +4,7 @@ import (
 	".authenticator/cryptography"
 	".authenticator/internal/blockchain/block"
 	".authenticator/internal/blockchain/chain"
+	crypto "crypto/x509"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"math/rand"
@@ -16,7 +17,7 @@ const (
 )
 
 func TestPrint(t *testing.T) {
-	t.Run("Print added block", func(t *testing.T) {
+	t.Run("Print added block", func(t *testing.T) { //make this work
 		var (
 			bc      = chain.InitBlockChain(dbPath)
 			keyPair = cryptography.GenerateKeyPair()
@@ -51,6 +52,8 @@ func TestPrint(t *testing.T) {
 			pow := block.NewProofOfWork(b)
 			fmt.Printf("Pow: %s\n", strconv.FormatBool(pow.Validate()))
 			fmt.Printf("Nonce: %d\n", b.Nonce)
+			publicKey, _ := crypto.ParsePKCS1PublicKey(b.PublicKey)
+			fmt.Printf("Public key: %d\n", publicKey.E)
 			fmt.Println()
 			if len(b.PrevHash) == 0 {
 				break
@@ -58,7 +61,7 @@ func TestPrint(t *testing.T) {
 		}
 	})
 
-	t.Run("acceptance test, happy path", func(t *testing.T) {
+	t.Run("acceptance test, happy path", func(t *testing.T) { //make this work
 		var (
 			bc      = chain.InitBlockChain(dbPath)
 			keyPair = cryptography.GenerateKeyPair()
@@ -67,16 +70,18 @@ func TestPrint(t *testing.T) {
 			keyPath = "genesis-key.txt"
 			msg     = "this is a secret message"
 		)
-		defer bc.Iterator().Database.Close()                                 //should close on iterator? prob not
-		b, err := bc.AddBlock(fmt.Sprintf("test %d", rn), keyPair.PublicKey) //genesis instead, or should there be one for genesis and one for additional block?
-		assert.NoErrorf(t, err, "error occurred creating b")                 //---this should be method
+		defer bc.Iterator().Database.Close() //should close on iterator? prob not
+		b, err := bc.AddBlock(fmt.Sprintf("test %d", rn), keyPair.PublicKey)
+		assert.NoErrorf(t, err, "error occurred creating b") //---this should be method
 		fmt.Println("Added Block!")
 		fmt.Printf("Previous hash: %x\n", b.PrevHash)
 		fmt.Printf("data: %s\n", b.Data)
 		fmt.Printf("hash: %x\n", b.Hash)
 		pow := block.NewProofOfWork(b)
 		fmt.Printf("Pow: %s\n", strconv.FormatBool(pow.Validate()))
-		fmt.Printf("Nonce: %d\n", b.Nonce)                //this--this should be method
+		fmt.Printf("Nonce: %d\n", b.Nonce) //this--this should be method
+		publicKey, err := crypto.ParsePKCS1PublicKey(b.PublicKey)
+		fmt.Printf("Public key: %d\n", publicKey.E)
 		certificate := cryptography.RetrieveCertificate() //"genesis", remember to change save certificate
 		assert.True(t, keyPair.PrivateKey.PrivateKey.Equal(certificate.PRK))
 		assert.True(t, keyPair.PrivateKey.PrivateKey.PublicKey.Equal(certificate.PUK))
@@ -91,7 +96,9 @@ func TestPrint(t *testing.T) {
 		assert.Equal(t, msg, decrypt)
 	})
 
-	t.Run("AddBlock with certificate", func(t *testing.T) {
-
+	t.Run("Genesis with certificate", func(t *testing.T) {
+		//database must be empty
+		bc := chain.InitBlockChain(dbPath)
+		defer bc.Iterator().Database.Close()
 	})
 }

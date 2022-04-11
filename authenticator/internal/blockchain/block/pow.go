@@ -30,6 +30,7 @@ func (pow *ProofOfWork) FindNonce(nonce int) []byte {
 			pow.Block.Data,
 			utils.ToHex(int64(nonce)),
 			utils.ToHex(int64(Difficulty)),
+			pow.Block.PublicKey,
 		},
 		[]byte{},
 	)

@@ -4,19 +4,20 @@ import (
 	".authenticator/cryptography"
 	".authenticator/internal/utils"
 	"bytes"
+	crypto "crypto/x509"
 	"encoding/gob"
 )
 
 type Block struct {
-	Hash     []byte
-	Data     []byte
-	PrevHash []byte
-	Nonce    int
-	//publicKey []byte
+	Hash      []byte
+	Data      []byte
+	PrevHash  []byte
+	Nonce     int
+	PublicKey []byte
 }
 
 func CreateBlock(data string, prevHash []byte, pk *cryptography.PublicKey) *Block {
-	block := &Block{[]byte{}, []byte(data), prevHash, 0}
+	block := &Block{[]byte{}, []byte(data), prevHash, 0, crypto.MarshalPKCS1PublicKey(pk.PublicKey)}
 	pow := NewProofOfWork(block)
 	nonce, hash := pow.Run()
 

@@ -47,14 +47,16 @@ func SaveCertificate(certificate Certificate, path ...string) {
 	//check if key and certificate exists
 	if path != nil {
 		exists = utils.FileExists(fmt.Sprintf("%s-certificate.bin"))
+		CreateSymmetricKey(path[0])
 	} else {
 		exists = utils.FileExists("certificate.bin")
+		CreateSymmetricKey()
 	}
 	if exists {
 		return //this should probably return an error
 	}
-	CreateSymmetricKey()
-	key := RetrieveSymmetricKey()
+
+	key := RetrieveSymmetricKey(path[0])
 
 	block, err := aes.NewCipher(key)
 	utils.Handle(err)
@@ -81,14 +83,16 @@ func SaveCertificate(certificate Certificate, path ...string) {
 
 func RetrieveCertificate(path ...string) Certificate {
 	var infile *os.File
+	var key []byte
 	if path != nil {
 		infile, _ = os.Open(fmt.Sprintf("%s-certificate.bin", path[0]))
+		key = RetrieveSymmetricKey(path[0])
 	} else {
 		infile, _ = os.Open("certificate.bin")
+		key = RetrieveSymmetricKey()
 	}
 	defer infile.Close()
 
-	key := RetrieveSymmetricKey()
 	block, err := aes.NewCipher(key)
 	utils.Handle(err)
 

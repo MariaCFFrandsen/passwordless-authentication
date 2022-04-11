@@ -59,8 +59,8 @@ func TestCertificate(t *testing.T) {
 	})
 
 	t.Run("write and read key file", func(t *testing.T) {
-		symmetricKey := cryptography.CreateSymmetricKey()
-		readKey := cryptography.RetrieveSymmetricKey()
+		symmetricKey := cryptography.CreateSymmetricKey("test")
+		readKey := cryptography.RetrieveSymmetricKey("test")
 		assert.Equal(t, symmetricKey, readKey)
 	})
 

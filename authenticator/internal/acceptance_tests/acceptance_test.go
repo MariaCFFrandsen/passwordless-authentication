@@ -17,7 +17,7 @@ const (
 )
 
 func TestPrint(t *testing.T) {
-	t.Run("Print added block", func(t *testing.T) { //make this work
+	t.Run("Print added block without certificate", func(t *testing.T) { //make this work
 		var (
 			bc      = chain.InitBlockChain(dbPath)
 			keyPair = cryptography.GenerateKeyPair()
@@ -26,7 +26,7 @@ func TestPrint(t *testing.T) {
 
 		defer bc.Iterator().Database.Close()
 
-		b, err := bc.AddBlock(fmt.Sprintf("test %d", rn), keyPair.PublicKey)
+		b, err := bc.AddBlock(fmt.Sprintf("test-%d", rn), keyPair.PublicKey)
 		assert.NoErrorf(t, err, "error occurred creating b")
 		fmt.Println("Added Block!")
 		fmt.Printf("Previous hash: %x\n", b.PrevHash)
@@ -65,13 +65,16 @@ func TestPrint(t *testing.T) {
 		var (
 			bc      = chain.InitBlockChain(dbPath)
 			keyPair = cryptography.GenerateKeyPair()
-			rn      = rand.Intn(100)
-			mac     = cryptography.GetMacAddr()
-			keyPath = "genesis-key.txt"
-			msg     = "this is a secret message"
+			kp      = cryptography.KeyPair{
+				PrivateKey: keyPair.PrivateKey,
+				PublicKey:  keyPair.PublicKey,
+			}
+			rn  = rand.Intn(100)
+			mac = cryptography.GetMacAddr()
+			msg = "this is a secret message"
 		)
 		defer bc.Iterator().Database.Close() //should close on iterator? prob not
-		b, err := bc.AddBlock(fmt.Sprintf("test %d", rn), keyPair.PublicKey)
+		b, err := bc.AddBlock(fmt.Sprintf("test-%d", rn), keyPair.PublicKey)
 		assert.NoErrorf(t, err, "error occurred creating b") //---this should be method
 		fmt.Println("Added Block!")
 		fmt.Printf("Previous hash: %x\n", b.PrevHash)
@@ -82,11 +85,12 @@ func TestPrint(t *testing.T) {
 		fmt.Printf("Nonce: %d\n", b.Nonce) //this--this should be method
 		publicKey, err := crypto.ParsePKCS1PublicKey(b.PublicKey)
 		fmt.Printf("Public key: %d\n", publicKey.E)
-		certificate := cryptography.RetrieveCertificate() //"genesis", remember to change save certificate
+		cryptography.SaveCertificate(cryptography.CreateCertificate(kp), fmt.Sprintf("test-%d", rn))
+		certificate := cryptography.RetrieveCertificate(fmt.Sprintf("test-%d", rn))
 		assert.True(t, keyPair.PrivateKey.PrivateKey.Equal(certificate.PRK))
 		assert.True(t, keyPair.PrivateKey.PrivateKey.PublicKey.Equal(certificate.PUK))
 		assert.Equal(t, mac, certificate.MacAddress)
-		assert.Equal(t, keyPath, certificate.Text)
+		//assert.Equal(t, keyPath, certificate.Text)
 		cipher, _ := cryptography.Encrypt(msg, &cryptography.PublicKey{
 			PublicKey: certificate.PUK,
 		})

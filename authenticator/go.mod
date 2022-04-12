@@ -17,3 +17,5 @@ require (
 	golang.org/x/sys v0.0.0-20190626221950-04f50cda93cb // indirect
 	gopkg.in/yaml.v2 v2.2.2 // indirect
 )
+
+require github.com/gorilla/mux v1.8.0 // indirect

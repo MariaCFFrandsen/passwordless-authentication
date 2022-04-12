@@ -90,7 +90,6 @@ func TestPrint(t *testing.T) {
 		assert.True(t, keyPair.PrivateKey.PrivateKey.Equal(certificate.PRK))
 		assert.True(t, keyPair.PrivateKey.PrivateKey.PublicKey.Equal(certificate.PUK))
 		assert.Equal(t, mac, certificate.MacAddress)
-		//assert.Equal(t, keyPath, certificate.Text)
 		cipher, _ := cryptography.Encrypt(msg, &cryptography.PublicKey{
 			PublicKey: certificate.PUK,
 		})

@@ -19,7 +19,7 @@ func TestBlock(t *testing.T) {
 		bc      = chain.InitBlockChain(dbFile)
 		keyPair = cryptography.GenerateKeyPair()
 		rn      = rand.Intn(100)
-		block = block.CreateBlock(fmt.Sprintf("test block %d", rn),
+		b       = block.CreateBlock(fmt.Sprintf("test block %d", rn),
 			bc.LastHash,
 			keyPair.PublicKey)
 	)
@@ -32,18 +32,18 @@ func TestBlock(t *testing.T) {
 
 	t.Run("Block to []byte", func(t *testing.T) {
 		pb := []byte(fmt.Sprintf("%v", keyPair.PublicKey))
-		assert.NotNil(t, block)
+		assert.NotNil(t, b)
 		assert.NotEmpty(t, pb, "")
 	})
 
 	t.Run("Run PoW", func(t *testing.T) {
-		proofOfWork := block.NewProofOfWork(block)
+		proofOfWork := block.NewProofOfWork(b)
 		proofOfWork.Run()
 	})
 
 	t.Run("Verify hash", func(t *testing.T) {
 		var (
-			proofOfWork = block.NewProofOfWork(block)
+			proofOfWork = block.NewProofOfWork(b)
 		)
 		proofOfWork.Validate()
 

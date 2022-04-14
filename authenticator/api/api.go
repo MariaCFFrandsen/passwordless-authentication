@@ -3,12 +3,16 @@ package api
 import (
 	".authenticator/cryptography"
 	".authenticator/internal/blockchain/block"
-	blockchain2 ".authenticator/internal/blockchain/chain"
+	blockchain ".authenticator/internal/blockchain/chain"
 	".authenticator/internal/utils"
 	crypto "crypto/x509"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+)
+
+const (
+	dbPath = "..\\tmp\\blocks"
 )
 
 type Service interface { //this is the API the server should have
@@ -28,7 +32,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) { //post
 	var user User
 	err = json.Unmarshal(body, &user)
 	publicKey, err := crypto.ParsePKCS1PublicKey(user.PK)
-	addBlock, err := blockchain2.InitBlockChain("filepath/").AddBlock("new block from api", &cryptography.PublicKey{PublicKey: publicKey})
+	addBlock, err := blockchain.InitBlockChain(dbPath).AddBlock("new block from api", &cryptography.PublicKey{PublicKey: publicKey})
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	if addBlock != nil && err == nil {
@@ -47,10 +51,19 @@ func AuthenticateUser(w http.ResponseWriter, r *http.Request) { //post for now,
 	utils.Handle(err)
 	var user User
 	err = json.Unmarshal(body, &user)
-	//search the blockchain
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusAccepted) //define which status codes should mean what
-	json.NewEncoder(w).Encode("true")
+	key, err := crypto.ParsePKCS1PublicKey(user.PK)
+	_, b := blockchain.InitBlockChain(dbPath).Iterator().SearchBlockchainByPublicKey(&cryptography.PublicKey{PublicKey: key})
+	//defer db close
+	if b {
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusAccepted) //define which status codes should mean what
+		json.NewEncoder(w).Encode("true")
+	} else {
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotAcceptable) //define which status codes should mean what
+		json.NewEncoder(w).Encode("true")
+	}
+
 }
 
 func Ping(w http.ResponseWriter, r *http.Request) {

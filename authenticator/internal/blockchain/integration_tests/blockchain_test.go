@@ -1,51 +1,60 @@
 package integration_tests
 
 import (
-	blockchain2 ".authenticator/internal/blockchain/chain"
-	"bytes"
+	".authenticator/cryptography"
+	blockchain ".authenticator/internal/blockchain/chain"
+	crypto "crypto/x509"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-func TestBlockchain(t *testing.T) {
-	//TODO: make some test with database
+const (
+	dbPath = "..\\..\\..\\tmp\\blocks"
+)
 
+func TestBlockchain(t *testing.T) {
 	t.Run("Init Blockchain", func(t *testing.T) {
-		blockchain := blockchain2.InitBlockChain()
-		assert.NotNil(t, blockchain)
+		bc := blockchain.InitBlockChain()
+		assert.NotNil(t, bc)
 	})
 
 	t.Run("Correct last hash", func(t *testing.T) {
 		var (
-			blockchain = blockchain2.InitBlockChain()
+			bc = blockchain.InitBlockChain()
 		)
-		h := blockchain.LastHash
+		h := bc.LastHash
 		fmt.Printf(string(h))
 	})
 
 	t.Run("Add Block", func(t *testing.T) {
 		var (
-			blockchain = blockchain2.InitBlockChain()
+			bc = blockchain.InitBlockChain()
 		)
-		blockchain.AddBlock("test block", nil)
-	})
-
-	t.Run("", func(t *testing.T) {
-
+		bc.AddBlock("test block", nil)
 	})
 
 	t.Run("Find Block by Hash", func(t *testing.T) {
 		var (
-			blockchain = blockchain2.InitBlockChain()
+		//bc = blockchain.InitBlockChain()
 		)
-		iterator := blockchain.Iterator()
-		findHash := []byte{}
-		for iterator.Next() != nil {
-			if bytes.Compare(findHash, iterator.CurrentHash) == 0 {
-				//hash found
-				//this is a shitty and slow method but now we can one
-			}
-		}
+
+	})
+
+	t.Run("Find Block by Public Key", func(t *testing.T) {
+		var (
+			iterator = blockchain.InitBlockChain(dbPath).Iterator()
+			block    = iterator.Next()
+		)
+		iterator.Database.Close()
+		iterator = blockchain.InitBlockChain(dbPath).Iterator()
+		key, _ := crypto.ParsePKCS1PublicKey(block.PublicKey)
+		foundBlock, found := iterator.SearchBlockchainByPublicKey(&cryptography.PublicKey{PublicKey: key})
+		assert.True(t, found)
+		assert.NotNil(t, foundBlock)
+		assert.Equal(t, block.Hash, foundBlock.Hash)
+		assert.Equal(t, block.PrevHash, foundBlock.PrevHash)
+		assert.Equal(t, block.Nonce, foundBlock.Nonce)
+		assert.Equal(t, block.Data, foundBlock.Data)
 	})
 }

@@ -1,4 +1,4 @@
-package cryptography
+package cryptography // Package cryptography should probably be inside a pkg folder
 
 import (
 	".authenticator/internal/utils"
@@ -19,7 +19,7 @@ type Certificate struct {
 	PrivateKey []byte
 	PublicKey  []byte
 	MacAddress []string
-	Text       string //this could file-name, so we can extend genesis and etc
+	Text       string //this should not be filename
 }
 
 type CertificateService interface {

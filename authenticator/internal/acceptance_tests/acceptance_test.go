@@ -17,7 +17,7 @@ const (
 )
 
 func TestPrint(t *testing.T) {
-	t.Run("Print added block without certificate", func(t *testing.T) { //make this work
+	t.Run("Add block without certificate", func(t *testing.T) { //make this work
 		var (
 			bc      = chain.InitBlockChain(dbPath)
 			keyPair = cryptography.GenerateKeyPair()
@@ -54,6 +54,7 @@ func TestPrint(t *testing.T) {
 			fmt.Printf("Nonce: %d\n", b.Nonce)
 			publicKey, _ := crypto.ParsePKCS1PublicKey(b.PublicKey)
 			fmt.Printf("Public key: %d\n", publicKey.E)
+			fmt.Printf("Public key 2: %d\n", publicKey.N)
 			fmt.Println()
 			if len(b.PrevHash) == 0 {
 				break
@@ -104,4 +105,5 @@ func TestPrint(t *testing.T) {
 		bc := chain.InitBlockChain(dbPath)
 		defer bc.Iterator().Database.Close()
 	})
+
 }

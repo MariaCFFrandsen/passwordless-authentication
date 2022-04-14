@@ -15,9 +15,10 @@ const (
 type dbService interface {
 	Insert(newBlock *block.Block) []byte
 	LastHash() []byte
-	GetBlockByHash(currentHash []byte) *block.Block
+	GetBlockByHash(currentHash []byte) *block.Block //new name for this method
 	CreateOrFindGenesis(genesis *block.Block) []byte
 	Close()
+	//SearchChainByPublicKey(key cryptography.PublicKey) *block.Block
 }
 
 type Blockchain struct {

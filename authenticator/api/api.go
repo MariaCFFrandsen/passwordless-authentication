@@ -12,7 +12,8 @@ import (
 )
 
 const (
-	dbPath = "..\\tmp\\blocks"
+	dbPath = "C:\\Users\\Bruger\\goprojects\\passwordless-authentication\\authenticator\\tmp\\blocks"
+	//dbPath = "..\\tmp\\blocks"
 )
 
 type Service interface { //this is the API the server should have
@@ -32,17 +33,18 @@ func CreateUser(w http.ResponseWriter, r *http.Request) { //post
 	var user User
 	err = json.Unmarshal(body, &user)
 	publicKey, err := crypto.ParsePKCS1PublicKey(user.PK)
-	addBlock, err := blockchain.InitBlockChain(dbPath).AddBlock("new block from api", &cryptography.PublicKey{PublicKey: publicKey})
+	bc := blockchain.InitBlockChain(dbPath)
+	addBlock, err := bc.AddBlock("new block from api", &cryptography.PublicKey{PublicKey: publicKey})
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	if addBlock != nil && err == nil {
 		json.NewEncoder(w).Encode("Created")
 	} else {
-		json.NewEncoder(w).Encode("Created") //change
+		json.NewEncoder(w).Encode("Not created") //change
 	}
-
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	bc.Iterator().Database.Close()
 }
 
 func AuthenticateUser(w http.ResponseWriter, r *http.Request) { //post for now,
@@ -52,7 +54,8 @@ func AuthenticateUser(w http.ResponseWriter, r *http.Request) { //post for now,
 	var user User
 	err = json.Unmarshal(body, &user)
 	key, err := crypto.ParsePKCS1PublicKey(user.PK)
-	_, b := blockchain.InitBlockChain(dbPath).Iterator().SearchBlockchainByPublicKey(&cryptography.PublicKey{PublicKey: key})
+	iterator := blockchain.InitBlockChain(dbPath).Iterator()
+	_, b := iterator.SearchBlockchainByPublicKey(&cryptography.PublicKey{PublicKey: key})
 	//defer db close
 	if b {
 		w.Header().Add("Content-Type", "application/json")
@@ -63,7 +66,7 @@ func AuthenticateUser(w http.ResponseWriter, r *http.Request) { //post for now,
 		w.WriteHeader(http.StatusNotAcceptable) //define which status codes should mean what
 		json.NewEncoder(w).Encode("true")
 	}
-
+	iterator.Database.Close()
 }
 
 func Ping(w http.ResponseWriter, r *http.Request) {

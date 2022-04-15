@@ -34,7 +34,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) { //post
 	err = json.Unmarshal(body, &user)
 	publicKey, err := crypto.ParsePKCS1PublicKey(user.PK)
 	bc := blockchain.InitBlockChain(dbPath)
-	addBlock, err := bc.AddBlock("new block from api", &cryptography.PublicKey{PublicKey: publicKey})
+	addBlock, err := bc.AddBlock("block-from-api", &cryptography.PublicKey{PublicKey: publicKey})
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	if addBlock != nil && err == nil {

@@ -1,7 +1,7 @@
 package block
 
 import (
-	".authenticator/internal/utils"
+	"authenticator/internal/utils"
 	"bytes"
 	"crypto/sha256"
 	"fmt"

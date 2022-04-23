@@ -1,9 +1,9 @@
 package integration_tests
 
 import (
-	".authenticator/cryptography"
-	".authenticator/internal/blockchain/block"
-	".authenticator/internal/blockchain/chain"
+	"authenticator/cryptography"
+	"authenticator/internal/blockchain/block"
+	"authenticator/internal/blockchain/chain"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"math/rand"

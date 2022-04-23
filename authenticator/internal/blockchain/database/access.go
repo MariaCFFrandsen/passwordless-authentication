@@ -1,8 +1,8 @@
 package database
 
 import (
-	".authenticator/internal/blockchain/block"
-	".authenticator/internal/utils"
+	"authenticator/internal/blockchain/block"
+	"authenticator/internal/utils"
 	"fmt"
 	"github.com/dgraph-io/badger"
 )

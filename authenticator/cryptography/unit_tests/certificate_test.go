@@ -1,7 +1,7 @@
 package unit_tests
 
 import (
-	".authenticator/cryptography"
+	"authenticator/cryptography"
 	crypto "crypto/x509"
 	"github.com/stretchr/testify/assert"
 	"testing"

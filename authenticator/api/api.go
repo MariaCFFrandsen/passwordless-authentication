@@ -1,10 +1,10 @@
 package api
 
 import (
-	".authenticator/cryptography"
-	".authenticator/internal/blockchain/block"
-	blockchain ".authenticator/internal/blockchain/chain"
-	".authenticator/internal/utils"
+	"authenticator/cryptography"
+	"authenticator/internal/blockchain/block"
+	blockchain "authenticator/internal/blockchain/chain"
+	"authenticator/internal/utils"
 	crypto "crypto/x509"
 	"encoding/json"
 	"io/ioutil"

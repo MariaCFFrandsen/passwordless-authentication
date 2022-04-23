@@ -1,9 +1,9 @@
 package chain
 
 import (
-	".authenticator/cryptography"
-	".authenticator/internal/blockchain/block"
-	".authenticator/internal/blockchain/database"
+	"authenticator/cryptography"
+	"authenticator/internal/blockchain/block"
+	"authenticator/internal/blockchain/database"
 )
 
 const (

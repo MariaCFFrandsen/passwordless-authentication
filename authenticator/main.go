@@ -1,7 +1,7 @@
 package main
 
 import (
-	".authenticator/api"
+	"authenticator/api"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"

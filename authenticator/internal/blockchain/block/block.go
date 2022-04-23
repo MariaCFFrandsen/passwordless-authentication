@@ -1,8 +1,8 @@
 package block
 
 import (
-	".authenticator/cryptography"
-	".authenticator/internal/utils"
+	"authenticator/cryptography"
+	"authenticator/internal/utils"
 	"bytes"
 	crypto "crypto/x509"
 	"encoding/gob"

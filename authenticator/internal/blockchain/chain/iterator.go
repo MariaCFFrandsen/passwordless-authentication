@@ -1,8 +1,8 @@
 package chain
 
 import (
-	".authenticator/cryptography"
-	".authenticator/internal/blockchain/block"
+	"authenticator/cryptography"
+	"authenticator/internal/blockchain/block"
 	crypto "crypto/x509"
 	"fmt"
 )

@@ -1,7 +1,7 @@
 package unit_tests
 
 import (
-	".authenticator/cryptography"
+	"authenticator/cryptography"
 	"github.com/stretchr/testify/assert"
 	"math"
 	"testing"

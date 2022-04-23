@@ -1,9 +1,9 @@
 package acceptance_tests
 
 import (
-	".authenticator/cryptography"
-	".authenticator/internal/blockchain/block"
-	".authenticator/internal/blockchain/chain"
+	"authenticator/cryptography"
+	"authenticator/internal/blockchain/block"
+	"authenticator/internal/blockchain/chain"
 	crypto "crypto/x509"
 	"fmt"
 	"github.com/stretchr/testify/assert"

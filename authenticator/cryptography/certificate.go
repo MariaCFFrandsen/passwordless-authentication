@@ -1,7 +1,6 @@
 package cryptography // Package cryptography should probably be inside a pkg folder
 
 import (
-	".authenticator/internal/utils"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
@@ -46,10 +45,10 @@ func SaveCertificate(certificate Certificate, path ...string) {
 	var exists bool
 	//check if key and certificate exists
 	if path != nil {
-		exists = utils.FileExists(fmt.Sprintf("%s-certificate.bin"))
+		exists = FileExists(fmt.Sprintf("%s-certificate.bin"))
 		CreateSymmetricKey(path[0])
 	} else {
-		exists = utils.FileExists("certificate.bin")
+		exists = FileExists("certificate.bin")
 		CreateSymmetricKey()
 	}
 	if exists {
@@ -59,18 +58,18 @@ func SaveCertificate(certificate Certificate, path ...string) {
 	key := RetrieveSymmetricKey(path[0])
 
 	block, err := aes.NewCipher(key)
-	utils.Handle(err)
+	Handle(err)
 
 	iv := make([]byte, block.BlockSize())
 	_, err = io.ReadFull(rand.Reader, iv)
-	utils.Handle(err)
+	Handle(err)
 	var outfile *os.File
 	if path != nil {
 		outfile, err = os.OpenFile(fmt.Sprintf("%s-certificate.bin", path[0]), os.O_RDWR|os.O_CREATE, 0777) //should be less permissions
 	} else {
 		outfile, err = os.OpenFile("certificate.bin", os.O_RDWR|os.O_CREATE, 0777) //should be less permissions
 	}
-	utils.Handle(err)
+	Handle(err)
 	defer outfile.Close()
 
 	bMsg := ToBytes(certificate)
@@ -94,15 +93,15 @@ func RetrieveCertificate(path ...string) Certificate {
 	defer infile.Close()
 
 	block, err := aes.NewCipher(key)
-	utils.Handle(err)
+	Handle(err)
 
 	fi, err := infile.Stat()
-	utils.Handle(err)
+	Handle(err)
 
 	iv := make([]byte, block.BlockSize())
 	msgLen := fi.Size() - int64(len(iv))
 	_, err = infile.ReadAt(iv, msgLen)
-	utils.Handle(err)
+	Handle(err)
 
 	buf := make([]byte, 4096)
 	stream := cipher.NewCTR(block, iv)
@@ -154,6 +153,6 @@ func RetrieveSymmetricKey(path ...string) []byte {
 		infile, _ = os.OpenFile("key.txt", os.O_RDWR|os.O_CREATE, 0777) //permission 0700 ? så der er ikke read exe
 	}
 	_, err := infile.Read(bytes)
-	utils.Handle(err)
+	Handle(err)
 	return bytes
 }

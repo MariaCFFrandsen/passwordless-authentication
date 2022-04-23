@@ -1,7 +1,6 @@
 package cryptography
 
 import (
-	".authenticator/internal/utils"
 	"bytes"
 	crypto "crypto/x509"
 	"encoding/gob"
@@ -10,7 +9,7 @@ import (
 
 func GetMacAddr() []string { //change to []byte(?)
 	ifas, err := net.Interfaces()
-	utils.Handle(err)
+	Handle(err)
 	if err != nil {
 		return nil
 	}

@@ -1,16 +1,16 @@
 package unit_tests
 
 import (
-	"authenticator/cryptography"
+	"github.com/passwordless-authentication/authenticator/cryptography"
 	"github.com/stretchr/testify/assert"
 	"math"
 	"testing"
 )
 
 func TestPublicKeyEncryption(t *testing.T) {
-	var(
+	var (
 		keyPair = cryptography.GenerateKeyPair()
-		cipher = "Super confidential message"
+		cipher  = "Super confidential message"
 	)
 
 	t.Run("Encryption", func(t *testing.T) {

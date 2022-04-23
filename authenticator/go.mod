@@ -1,4 +1,4 @@
-module authenticator
+module github.com/passwordless-authentication/authenticator
 
 go 1.17
 

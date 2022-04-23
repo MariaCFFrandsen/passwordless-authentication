@@ -1,10 +1,10 @@
 package integration_tests
 
 import (
-	"authenticator/cryptography"
-	blockchain "authenticator/internal/blockchain/chain"
 	crypto "crypto/x509"
 	"fmt"
+	"github.com/passwordless-authentication/authenticator/cryptography"
+	blockchain "github.com/passwordless-authentication/authenticator/internal/blockchain/chain"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

@@ -1,10 +1,10 @@
 package database
 
 import (
-	"authenticator/internal/blockchain/block"
-	"authenticator/internal/utils"
 	"fmt"
 	"github.com/dgraph-io/badger"
+	"github.com/passwordless-authentication/authenticator/internal/blockchain/block"
+	"github.com/passwordless-authentication/authenticator/internal/utils"
 )
 
 type Access struct {

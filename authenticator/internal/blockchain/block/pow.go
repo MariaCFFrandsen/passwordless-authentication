@@ -1,10 +1,10 @@
 package block
 
 import (
-	"authenticator/internal/utils"
 	"bytes"
 	"crypto/sha256"
 	"fmt"
+	"github.com/passwordless-authentication/authenticator/internal/utils"
 	"math"
 	"math/big"
 )

@@ -1,11 +1,11 @@
 package block
 
 import (
-	"authenticator/cryptography"
-	"authenticator/internal/utils"
 	"bytes"
 	crypto "crypto/x509"
 	"encoding/gob"
+	"github.com/passwordless-authentication/authenticator/cryptography"
+	"github.com/passwordless-authentication/authenticator/internal/utils"
 )
 
 type Block struct {

@@ -1,10 +1,10 @@
 package integration_tests
 
 import (
-	"authenticator/cryptography"
-	"authenticator/internal/blockchain/block"
-	"authenticator/internal/blockchain/chain"
 	"fmt"
+	"github.com/passwordless-authentication/authenticator/cryptography"
+	"github.com/passwordless-authentication/authenticator/internal/blockchain/block"
+	"github.com/passwordless-authentication/authenticator/internal/blockchain/chain"
 	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"testing"

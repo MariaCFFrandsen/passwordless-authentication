@@ -1,12 +1,12 @@
 package api
 
 import (
-	"authenticator/cryptography"
-	"authenticator/internal/blockchain/block"
-	blockchain "authenticator/internal/blockchain/chain"
-	"authenticator/internal/utils"
 	crypto "crypto/x509"
 	"encoding/json"
+	"github.com/passwordless-authentication/authenticator/cryptography"
+	"github.com/passwordless-authentication/authenticator/internal/blockchain/block"
+	blockchain "github.com/passwordless-authentication/authenticator/internal/blockchain/chain"
+	"github.com/passwordless-authentication/authenticator/internal/utils"
 	"io/ioutil"
 	"net/http"
 )

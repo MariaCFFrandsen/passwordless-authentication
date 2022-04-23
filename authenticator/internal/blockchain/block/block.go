@@ -4,8 +4,8 @@ import (
 	"bytes"
 	crypto "crypto/x509"
 	"encoding/gob"
-	"github.com/passwordless-authentication/authenticator/cryptography"
-	"github.com/passwordless-authentication/authenticator/internal/utils"
+	"github.com/MariaCFFrandsen/passwordless-authentication/authenticator/cryptography"
+	"github.com/MariaCFFrandsen/passwordless-authentication/authenticator/internal/utils"
 )
 
 type Block struct {

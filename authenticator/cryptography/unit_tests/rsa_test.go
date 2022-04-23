@@ -1,7 +1,7 @@
 package unit_tests
 
 import (
-	"github.com/passwordless-authentication/authenticator/cryptography"
+	"github.com/MariaCFFrandsen/passwordless-authentication/authenticator/cryptography"
 	"github.com/stretchr/testify/assert"
 	"math"
 	"testing"

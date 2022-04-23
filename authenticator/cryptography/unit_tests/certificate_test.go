@@ -2,7 +2,7 @@ package unit_tests
 
 import (
 	crypto "crypto/x509"
-	"github.com/passwordless-authentication/authenticator/cryptography"
+	"github.com/MariaCFFrandsen/passwordless-authentication/authenticator/cryptography"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

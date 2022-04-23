@@ -1,4 +1,4 @@
-module github.com/passwordless-authentication/authenticator
+module github.com/MariaCFFrandsen/passwordless-authentication/authenticator
 
 go 1.17
 

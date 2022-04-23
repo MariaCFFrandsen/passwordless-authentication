@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/MariaCFFrandsen/passwordless-authentication/authenticator/api"
 	"github.com/gorilla/mux"
-	"github.com/passwordless-authentication/authenticator/api"
 	"log"
 	"net/http"
 	"os"

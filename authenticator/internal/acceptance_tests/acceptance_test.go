@@ -3,9 +3,9 @@ package acceptance_tests
 import (
 	crypto "crypto/x509"
 	"fmt"
-	"github.com/passwordless-authentication/authenticator/cryptography"
-	"github.com/passwordless-authentication/authenticator/internal/blockchain/block"
-	"github.com/passwordless-authentication/authenticator/internal/blockchain/chain"
+	"github.com/MariaCFFrandsen/passwordless-authentication/authenticator/cryptography"
+	"github.com/MariaCFFrandsen/passwordless-authentication/authenticator/internal/blockchain/block"
+	"github.com/MariaCFFrandsen/passwordless-authentication/authenticator/internal/blockchain/chain"
 	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"strconv"

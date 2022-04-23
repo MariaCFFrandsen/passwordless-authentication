@@ -3,10 +3,10 @@ package api
 import (
 	crypto "crypto/x509"
 	"encoding/json"
-	"github.com/passwordless-authentication/authenticator/cryptography"
-	"github.com/passwordless-authentication/authenticator/internal/blockchain/block"
-	blockchain "github.com/passwordless-authentication/authenticator/internal/blockchain/chain"
-	"github.com/passwordless-authentication/authenticator/internal/utils"
+	"github.com/MariaCFFrandsen/passwordless-authentication/authenticator/cryptography"
+	"github.com/MariaCFFrandsen/passwordless-authentication/authenticator/internal/blockchain/block"
+	blockchain "github.com/MariaCFFrandsen/passwordless-authentication/authenticator/internal/blockchain/chain"
+	"github.com/MariaCFFrandsen/passwordless-authentication/authenticator/internal/utils"
 	"io/ioutil"
 	"net/http"
 )

@@ -2,9 +2,9 @@ package database
 
 import (
 	"fmt"
+	"github.com/MariaCFFrandsen/passwordless-authentication/authenticator/internal/blockchain/block"
+	"github.com/MariaCFFrandsen/passwordless-authentication/authenticator/internal/utils"
 	"github.com/dgraph-io/badger"
-	"github.com/passwordless-authentication/authenticator/internal/blockchain/block"
-	"github.com/passwordless-authentication/authenticator/internal/utils"
 )
 
 type Access struct {
